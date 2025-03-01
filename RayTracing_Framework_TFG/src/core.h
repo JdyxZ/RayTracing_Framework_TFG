@@ -19,6 +19,7 @@ constexpr double practically_zero = 1e-160;
 using std::make_shared;
 using std::shared_ptr;
 using std::nullopt;
+using std::optional;
 
 // Utility Functions
 

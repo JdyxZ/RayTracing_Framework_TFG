@@ -1,6 +1,7 @@
 #ifndef HITTABLE_LIST_H
 #define HITTABLE_LIST_H
 
+#include "benchmark.h"
 #include "hittable.h"
 #include <vector>
 
@@ -8,9 +9,11 @@ using std::vector;
 using std::make_shared;
 using std::shared_ptr;
 
-class hittable_list {
+class hittable_list 
+{
 public:
     vector<shared_ptr<hittable>> objects;
+    benchmark chrono;
 
     hittable_list() {}
     hittable_list(shared_ptr<hittable> object) { add(object); }

@@ -9,7 +9,7 @@ struct vertex
     vec3 position;
 
 	// Optional vertex attributes
-    std::optional<vec3> normal, color;
+    optional<vec3> normal, color;
 };
 
 class triangle : public hittable
