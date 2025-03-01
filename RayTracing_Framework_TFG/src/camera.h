@@ -66,7 +66,7 @@ public:
         defocus_disk_v = up * defocus_radius * focus_distance;
     }
 
-    void render(hittable_list& scene)
+    void render(const hittable_list& scene)
     {
         std::ofstream file = get_file();
 
@@ -128,25 +128,24 @@ private:
         return ray(ray_origin, ray_direction);
     }
 
-    color ray_color(const ray& r, int depth, hittable_list& scene) const
+    color ray_color(const ray& r, int depth, const hittable_list& scene) const
     {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
             return color(0, 0, 0);
 
         // Intersection details and closest object hit by the ray
-        hit_record rec;
-        shared_ptr<hittable> closest_object;
+        shared_ptr<hit_record> rec;
 
         // Define ray intersection interval
         interval ray_t(min_hit_distance, infinity);
 
-        // Sky color
-        if (!scene.intersect(r, ray_t, rec, closest_object))
+        // Sky hit
+        if (!scene.intersect(r, ray_t, rec))
             return sky_blend(r);
 
         // If the ray hits an object, calculate the color of the hit point
-        if (auto s = dynamic_cast<sphere*>(closest_object.get()))
+        if (auto s = dynamic_cast<sphere*>(rec->object.get()))
         {
             ray scattered;
             color attenuation;
@@ -154,9 +153,9 @@ private:
             if (s->mat->scatter(r, rec, attenuation, scattered))
                 return attenuation * ray_color(scattered, depth - 1, scene);
 
-            return color(0, 0, 0);
+            return color(0, 0, 0); 
         }
-        else if (auto t = dynamic_cast<triangle*>(closest_object.get()))
+        else if (auto t = dynamic_cast<triangle*>(rec->object.get()))
         {
             ray scattered;
             color attenuation;
@@ -167,14 +166,25 @@ private:
             return color(0, 0, 0);
 
             /*
-            auto c = barycentric_color_interpolation(rec, t);
+            std::shared_ptr<triangle_hit_record> tri_rec = std::dynamic_pointer_cast<triangle_hit_record>(rec);
+
+            if (tri_rec)
+            {
+				throw std::runtime_error("Error in hit record downcast to triangle");
+                return color(0, 0, 0);
+            }		
+
+            auto c = barycentric_color_interpolation(tri_rec, t);
 
 			if (c.has_value())
 				return c.value();
 
-            return 0.5 * (rec.normal + WHITE);
+            return 0.5 * (tri_rec->normal + WHITE);
             */
         }
+
+        // Unknown hit
+        return sky_blend(r);
     }
 
     color sky_blend(const ray& r) const
@@ -188,13 +198,13 @@ private:
         return lerp(a, start_color, end_color);
     }
 
-    std::optional<color> barycentric_color_interpolation(const hit_record& rec, triangle* t) const
+    std::optional<color> barycentric_color_interpolation(const shared_ptr<triangle_hit_record>& rec, triangle* t) const
     {
-        if (!rec.bc.has_value() || !t->has_vertex_colors())
+        if (!rec->bc.has_value() || !t->has_vertex_colors())
             return std::nullopt;
 
         // Barycentric coordinates
-        barycentric_coordinates bc = rec.bc.value();
+        barycentric_coordinates bc = rec->bc.value();
         double u = bc.u;
         double v = bc.v;
         double w = bc.w;

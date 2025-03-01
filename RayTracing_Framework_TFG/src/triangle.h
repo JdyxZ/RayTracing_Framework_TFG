@@ -1,6 +1,8 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#define CULLING false;
+
 struct vertex 
 {
 	// Compulsory vertex attributes
@@ -10,7 +12,8 @@ struct vertex
     std::optional<vec3> normal, color;
 };
 
-class triangle : public hittable {
+class triangle : public hittable
+{
 public:
     vertex A, B, C;
 	shared_ptr<material> mat;
@@ -23,7 +26,7 @@ public:
 		N = cross(AB, AC).normalize();
     }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override
+    bool hit(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
     {
         // Calculate P vector and determinant
         vec3 P = cross(r.direction(), AC);
@@ -60,11 +63,14 @@ public:
         if (!ray_t.surrounds(t)) return false;
 
         // Hit record
-        rec.t = t;
-		rec.p = r.at(t);
-        rec.determine_normal_direction(r.direction(), N);
-        rec.bc = { u, v, w };
-		// rec.mat = mat;
+        auto tri_rec = std::make_shared<triangle_hit_record>(); 
+        tri_rec->t = t;
+        tri_rec->p = r.at(t);
+        tri_rec->determine_normal_direction(r.direction(), N);
+        tri_rec->bc = { u, v, w };
+
+		// Polymorphic assignment
+        rec = tri_rec;
 
         return true;
     }

@@ -1,14 +1,14 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-class sphere : public hittable 
+class sphere : public hittable
 {
 public:
     shared_ptr<material> mat;
 
     sphere(const point3& center, double radius, shared_ptr<material> mat) : center(center), radius(std::fmax(0, radius)), mat(mat) {}
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override
+    bool hit(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
     {
         vec3 oc = center - r.origin();
         auto a = r.direction().length_squared();
@@ -29,13 +29,17 @@ public:
                 return false;
         }
 
-        vec3 phit = r.at(rec.t);
+        vec3 phit = r.at(root);
         vec3 outward_normal = (phit - center) / radius;
 
-        rec.t = root;
-        rec.p = phit;
-        rec.determine_normal_direction(r.direction(), outward_normal);
-        rec.bc = nullopt;
+        // Hit record
+        auto sph_rec = std::make_shared<sphere_hit_record>();
+        sph_rec->t = root;
+        sph_rec->p = phit;
+        sph_rec->determine_normal_direction(r.direction(), outward_normal);
+        
+        // Polymorphic assignment
+        rec = sph_rec;
 
         return true;
     }

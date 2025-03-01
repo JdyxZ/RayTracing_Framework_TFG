@@ -13,8 +13,8 @@ int main()
     hittable_list scene1;
 
     // Materials
-    auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
-    auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
+    auto material_ground = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    auto material_center = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     auto material_left = make_shared<dielectric>(1.50);
     auto material_bubble = make_shared<dielectric>(1.00 / 1.50);
     auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
@@ -36,10 +36,10 @@ int main()
     // Add primitives to scene
     scene1.add(sphere1);
 	scene1.add(sphere2);
-	scene1.add(sphere3);
-    scene1.add(sphere4);
-    scene1.add(sphere5);
-    scene1.add(triangle1);
+	// scene1.add(sphere3);
+    // scene1.add(sphere4);
+    // scene1.add(sphere5);
+    // scene1.add(triangle1);
 
     // Scene 2
     hittable_list scene2;
@@ -87,20 +87,18 @@ int main()
 
     // Create and set camera 1 settings
     camera cam1;
+    cam1.image_width = 800;
     cam1.bounce_max_depth = 50;
-    cam1.vertical_fov = 20;
-    cam1.lookfrom = point3(-2, 2, 1);
-    cam1.lookat = point3(0, 0, -1);
-    cam1.world_up = vec3(0, 1, 0);
-    cam1.defocus_angle = 10.0;
-    cam1.focus_distance = 3.4;
+    cam1.vertical_fov = 90;
+    cam1.defocus_angle = 0;
+    cam1.samples_per_pixel = 50;
 
     // Create and set camera 2 settings
     camera cam2;
     cam2.aspect_ratio = 16.0 / 9.0;
     cam2.image_width = 1200;
-    cam2.samples_per_pixel = 500;
-    cam2.bounce_max_depth = 5;
+    cam2.samples_per_pixel = 50;
+    cam2.bounce_max_depth = 10;
     cam2.vertical_fov = 20;
     cam2.lookfrom = point3(13, 2, 3);
     cam2.lookat = point3(0, 0, 0);
@@ -109,9 +107,9 @@ int main()
     cam2.focus_distance = 10.0;
 
 	// Initialize the camera
-    cam2.initialize();
+    cam1.initialize();
 
     // Render scene
-	cam2.render(scene2);
+    cam1.render(scene1);
 }
 

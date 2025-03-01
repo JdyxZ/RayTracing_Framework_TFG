@@ -1,5 +1,3 @@
-/*
-
 
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
@@ -45,4 +43,4 @@ bool load_obj(const std::string& filename, hittable_list& scene, std::shared_ptr
 
 #endif
 
-*/
+

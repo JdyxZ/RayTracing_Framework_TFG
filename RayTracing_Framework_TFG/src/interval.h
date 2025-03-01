@@ -35,4 +35,3 @@ const interval interval::universe = interval(-infinity, +infinity);
 
 
 #endif
-#pragma once
