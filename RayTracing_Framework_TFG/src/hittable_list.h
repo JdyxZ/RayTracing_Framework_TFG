@@ -21,19 +21,20 @@ public:
         objects.push_back(object);
     }
 
-    bool intersect(const ray& r, interval ray_t, hit_record& rec, shared_ptr<hittable>& closest_object)
+    bool intersect(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
     {
-        hit_record temp_rec;
+        shared_ptr<hit_record> temp_rec;
         bool hit_anything = false;
+		auto closest_object_so_far = ray_t.max;
 
         for (const auto& object : objects) 
         {
-            if (object->hit(r, ray_t, temp_rec))
+            if (object->hit(r, interval(ray_t.min, closest_object_so_far), temp_rec))
             {
                 hit_anything = true;
-                ray_t.max = temp_rec.t; // closest object so far
+                closest_object_so_far = temp_rec->t;
+				temp_rec->object = object;
                 rec = temp_rec;
-                closest_object = object;
             }
         }
 
