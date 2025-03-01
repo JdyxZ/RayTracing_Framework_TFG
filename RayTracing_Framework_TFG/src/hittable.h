@@ -40,9 +40,9 @@ public:
 class triangle_hit_record : public hit_record
 {
 public:
-	std::optional<barycentric_coordinates> bc;
+	optional<barycentric_coordinates> bc;
 
-	triangle_hit_record() : bc(std::nullopt) 
+	triangle_hit_record() : bc(nullopt) 
     {
 		type = TRIANGLE;
     }

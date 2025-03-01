@@ -66,14 +66,20 @@ public:
         defocus_disk_v = up * defocus_radius * focus_distance;
     }
 
-    void render(const hittable_list& scene)
+    void render(hittable_list& scene)
     {
+        // Create image file
         std::ofstream file = get_file();
 
+        // Start benchmark chrono
+		scene.chrono.start();
+
+        // Image file header
         file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
         for (int pixel_row = 0; pixel_row < image_height; pixel_row++)
         {
+            // Progress info
             std::clog << "\rScanlines remaining: " << (image_height - pixel_row) << ' ' << std::flush;
 
             for (int pixel_column = 0; pixel_column < image_width; pixel_column++)
@@ -98,6 +104,9 @@ public:
                 write_color(file, pixel_color);
             }
         }
+
+        // End benchmark chrono
+        scene.chrono.end();
 
         // Close file
         file.close();
@@ -198,10 +207,10 @@ private:
         return lerp(a, start_color, end_color);
     }
 
-    std::optional<color> barycentric_color_interpolation(const shared_ptr<triangle_hit_record>& rec, triangle* t) const
+    optional<color> barycentric_color_interpolation(const shared_ptr<triangle_hit_record>& rec, triangle* t) const
     {
         if (!rec->bc.has_value() || !t->has_vertex_colors())
-            return std::nullopt;
+            return nullopt;
 
         // Barycentric coordinates
         barycentric_coordinates bc = rec->bc.value();
