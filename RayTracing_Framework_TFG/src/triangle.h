@@ -24,6 +24,8 @@ public:
         AB = B.position - A.position;
         AC = C.position - A.position;
 		N = cross(AB, AC).normalize();
+        
+        bbox = aabb(A.position, B.position, C.position);
     }
 
     bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
@@ -66,7 +68,7 @@ public:
         if (!ray_t.surrounds(t)) return false;
 
         // Hit record
-        auto tri_rec = std::make_shared<triangle_hit_record>(); 
+        auto tri_rec = make_shared<triangle_hit_record>(); 
         tri_rec->t = t;
         tri_rec->p = r.at(t);
         tri_rec->determine_normal_direction(r.direction(), N);
@@ -88,6 +90,11 @@ public:
 		return A.normal.has_value() && B.normal.has_value() && C.normal.has_value();
 	}
 
+    aabb bounding_box() const override 
+    { 
+        return bbox; 
+    }
+
     const PRIMITIVE get_type() const override
     {
         return SPHERE;
@@ -95,6 +102,7 @@ public:
 
 private:
     vec3 AB, AC, N;
+    aabb bbox;
 };
 
 #endif

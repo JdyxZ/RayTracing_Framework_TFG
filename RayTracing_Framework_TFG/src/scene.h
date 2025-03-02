@@ -29,10 +29,20 @@ public:
     Scene() {}
     Scene(shared_ptr<Hittable> object) { add(object); }
 
-    void clear() { objects.clear(); }
+    aabb bounding_box() const 
+    { 
+        return bbox; 
+    }
 
-    void add(shared_ptr<Hittable> object) {
+    void add(shared_ptr<Hittable> object) 
+    {
         objects.push_back(object);
+        bbox = aabb(bbox, object->bounding_box());
+    }
+
+    void clear() 
+    { 
+        objects.clear(); 
     }
 
     bool intersect(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
@@ -47,13 +57,17 @@ public:
             {
                 hit_anything = true;
                 closest_object_so_far = temp_rec->t;
-				temp_rec->object = object;
                 rec = temp_rec;
             }
         }
 
         return hit_anything;
     }
+
+private:
+    aabb bbox;
 };
+
+using hittable_list = Scene;
 
 #endif

@@ -6,7 +6,7 @@ class vec3 {
     double e[3];
 
     vec3() : e{0,0,0} {}
-    vec3 (int i) : e{ (double)i, (double)i, (double)i } {};
+    vec3(int i) : e{ (double)i, (double)i, (double)i } {};
     vec3(double d) : e{ d, d, d } {};
     vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
 

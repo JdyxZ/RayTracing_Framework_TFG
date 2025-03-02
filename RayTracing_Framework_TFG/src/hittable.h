@@ -1,6 +1,8 @@
 ﻿#ifndef HITTABLE_H
 #define HITTABLE_H
 
+#include "aabb.h"
+
 // Forward declaration needed
 class Hittable;
 
@@ -8,6 +10,7 @@ enum PRIMITIVE
 {
 	SPHERE,
 	TRIANGLE,
+    BVH_NODE,
 	NOT_SPECIFIED
 };
 
@@ -57,11 +60,15 @@ public:
     }
 };
 
-class Hittable {
+class Hittable
+{
 public:
     virtual ~Hittable() = default;
 
     virtual bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const = 0;
+
+    virtual aabb bounding_box() const = 0;
+
     virtual const PRIMITIVE get_type() const = 0;
 };
 

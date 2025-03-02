@@ -1,6 +1,7 @@
 #include "core.h"
 #include "hittable.h"
 #include "scene.h"
+#include "bvh.h"
 #include "material.h"
 #include "sphere.h"
 #include "triangle.h"
@@ -85,11 +86,13 @@ int main()
 
     scene2.add(make_shared<Sphere>(point3(0, -1000, 0), 1000, material_ground));
 
+    scene2 = Scene(make_shared<bvh_node>(scene2));
+
     // scene2.add(triangle1);
 
     // Image 1 settings
     Image img1;
-    img1.width = 800;
+    img1.width = 400;
 
     // Camera 1 settings
     Camera cam1;

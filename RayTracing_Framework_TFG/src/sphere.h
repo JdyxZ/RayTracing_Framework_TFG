@@ -13,6 +13,9 @@ public:
         vec3 direction = vec3(0);
 
         center = motion_vector(origin, direction);
+
+        vec3 radius_vector = vec3(radius, radius, radius);
+        bbox = aabb(static_center - radius_vector, static_center + radius_vector);
     }
 
     // Moving sphere
@@ -22,6 +25,11 @@ public:
         vec3 direction = end_center - start_center;
 
         center = motion_vector(origin, direction);
+
+        vec3 radius_vector = vec3(radius, radius, radius);
+        aabb box1(center.at(0) - radius_vector, center.at(0) + radius_vector);
+        aabb box2(center.at(1) - radius_vector, center.at(1) + radius_vector);
+        bbox = aabb(box1, box2);
     }
 
     bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
@@ -51,7 +59,7 @@ public:
         vec3 outward_normal = (phit - current_center) / radius;
 
         // Hit record
-        auto sph_rec = std::make_shared<sphere_hit_record>();
+        auto sph_rec = make_shared<sphere_hit_record>();
         sph_rec->t = root;
         sph_rec->p = phit;
         sph_rec->determine_normal_direction(r.direction(), outward_normal);
@@ -62,6 +70,11 @@ public:
         return true;
     }
 
+    aabb bounding_box() const override 
+    { 
+        return bbox; 
+    }
+
     const PRIMITIVE get_type() const override
     {
         return SPHERE;
@@ -70,6 +83,7 @@ public:
 private:
     motion_vector center;
     double radius;
+    aabb bbox;
 };
 
 #endif

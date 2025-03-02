@@ -145,8 +145,11 @@ private:
         if (!scene.intersect(r, ray_t, rec))
             return sky_blend(r);
 
+        // Hit object
+        auto hit_object = rec->object.get();
+
         // If the ray hits an object, calculate the color of the hit point
-        if (auto s = dynamic_cast<Sphere*>(rec->object.get()))
+        if (auto s = dynamic_cast<Sphere*>(hit_object))
         {
             Ray scattered;
             color attenuation;
@@ -156,7 +159,7 @@ private:
 
             return color(0, 0, 0); 
         }
-        else if (auto t = dynamic_cast<Triangle*>(rec->object.get()))
+        else if (auto t = dynamic_cast<Triangle*>(hit_object))
         {
             Ray scattered;
             color attenuation;
