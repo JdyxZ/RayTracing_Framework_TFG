@@ -4,10 +4,9 @@
 class Sphere : public Hittable
 {
 public:
-    shared_ptr<material> mat;
 
     // Stationary sphere
-    Sphere(const point3& static_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat) 
+    Sphere(const point3& static_center, const double radius, shared_ptr<Material> material) : radius(std::fmax(0, radius)), material(material)
     {
         vec3 origin = static_center;
         vec3 direction = vec3(0);
@@ -19,7 +18,7 @@ public:
     }
 
     // Moving sphere
-    Sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat)
+    Sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<Material> material) : radius(std::fmax(0, radius)), material(material)
     {
         vec3 origin = start_center;
         vec3 direction = end_center - start_center;
@@ -63,6 +62,8 @@ public:
         sph_rec->t = root;
         sph_rec->p = phit;
         sph_rec->determine_normal_direction(r.direction(), outward_normal);
+        sph_rec->material = material;
+        sph_rec->type = type;
         
         // Polymorphic assignment
         rec = sph_rec;
@@ -81,8 +82,10 @@ public:
     }
 
 private:
+    PRIMITIVE type = SPHERE;
     motion_vector center;
     double radius;
+    shared_ptr<Material> material;
     aabb bbox;
 };
 

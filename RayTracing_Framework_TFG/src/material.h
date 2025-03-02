@@ -3,10 +3,10 @@
 
 #include "hittable.h"
 
-class material 
+class Material 
 {
 public:
-    virtual ~material() = default;
+    virtual ~Material() = default;
 
     virtual bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& outgoing_ray) const 
     {
@@ -14,7 +14,7 @@ public:
     }
 };
 
-class lambertian : public material 
+class lambertian : public Material 
 {
 public:
     lambertian(const color& albedo) : albedo(albedo) {}
@@ -39,7 +39,7 @@ private:
     color albedo;
 };
 
-class metal : public material 
+class metal : public Material 
 {
 public:
     metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
@@ -63,7 +63,7 @@ private:
     double fuzz;
 };
 
-class dielectric : public material {
+class dielectric : public Material {
 public:
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
 

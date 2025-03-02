@@ -52,11 +52,6 @@ public:
         bool hit_left = left->hit(r, ray_t, rec);
         bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec->t : ray_t.max), rec);
 
-        if (hit_left && (left->get_type() == SPHERE || left->get_type() == TRIANGLE))
-            rec->object = left;
-        else if (hit_right && (right->get_type() == SPHERE || right->get_type() == TRIANGLE))
-            rec->object = right;
-
         return hit_left || hit_right;
     }
 

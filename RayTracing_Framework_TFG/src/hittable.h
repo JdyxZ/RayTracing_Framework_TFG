@@ -5,6 +5,7 @@
 
 // Forward declaration needed
 class Hittable;
+class Material;
 
 enum PRIMITIVE
 {
@@ -26,7 +27,7 @@ public:
     vec3 normal;
     double t;
     bool front_face;
-    shared_ptr<Hittable> object;
+    shared_ptr<Material> material;
     PRIMITIVE type = NOT_SPECIFIED;
 
     virtual ~hit_record() = default; 

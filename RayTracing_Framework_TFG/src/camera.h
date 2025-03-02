@@ -145,50 +145,40 @@ private:
         if (!scene.intersect(r, ray_t, rec))
             return sky_blend(r);
 
-        // Hit object
-        auto hit_object = rec->object.get();
+        // Hit object type
+        PRIMITIVE hit_object_type = rec->type;
 
         // If the ray hits an object, calculate the color of the hit point
-        if (auto s = dynamic_cast<Sphere*>(hit_object))
+        Ray scattered;
+        color attenuation;
+
+        switch (hit_object_type)
         {
-            Ray scattered;
-            color attenuation;
-
-            if (s->mat->scatter(r, rec, attenuation, scattered))
-                return attenuation * ray_color(scattered, depth - 1, scene);
-
-            return color(0, 0, 0); 
-        }
-        else if (auto t = dynamic_cast<Triangle*>(hit_object))
-        {
-            Ray scattered;
-            color attenuation;
-
-            if (t->mat->scatter(r, rec, attenuation, scattered))
-                return attenuation * ray_color(scattered, depth - 1, scene);
-
-            return color(0, 0, 0);
-
+        case TRIANGLE:
             /*
             std::shared_ptr<triangle_hit_record> tri_rec = std::dynamic_pointer_cast<triangle_hit_record>(rec);
 
             if (tri_rec)
             {
-				throw std::runtime_error("Error in hit record downcast to triangle hit record");
+                throw std::runtime_error("Error in hit record downcast to triangle hit record");
                 return color(0, 0, 0);
-            }		
+            }
 
             auto c = barycentric_color_interpolation(tri_rec, t);
 
-			if (c.has_value())
-				return c.value();
+            if (c.has_value())
+                return c.value();
 
             return 0.5 * (tri_rec->normal + WHITE);
             */
-        }
+        case SPHERE:
+            if (rec->material->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth - 1, scene);
+            return color(0, 0, 0);
 
-        // Unknown hit
-        return sky_blend(r);
+        default: // Unknown hit
+            return sky_blend(r);
+        }
     }
 
     color sky_blend(const Ray& r) const

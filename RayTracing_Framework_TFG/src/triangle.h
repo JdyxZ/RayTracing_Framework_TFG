@@ -16,10 +16,9 @@ class Triangle : public Hittable
 {
 public:
     vertex A, B, C;
-	shared_ptr<material> mat;
 
-    Triangle(vertex A, vertex B, vertex C, shared_ptr<material> mat)
-		: A(A), B(B), C(C), mat(mat)
+    Triangle(vertex A, vertex B, vertex C, shared_ptr<Material> material)
+		: A(A), B(B), C(C), material(material)
     {
         AB = B.position - A.position;
         AC = C.position - A.position;
@@ -72,6 +71,8 @@ public:
         tri_rec->t = t;
         tri_rec->p = r.at(t);
         tri_rec->determine_normal_direction(r.direction(), N);
+        tri_rec->material = material;
+        tri_rec->type = type;
         tri_rec->bc = { u, v, w };
 
 		// Polymorphic assignment
@@ -101,7 +102,9 @@ public:
     }
 
 private:
+    PRIMITIVE type = TRIANGLE;
     vec3 AB, AC, N;
+    shared_ptr<Material> material;
     aabb bbox;
 };
 
