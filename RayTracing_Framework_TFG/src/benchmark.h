@@ -14,10 +14,10 @@ struct elapsed_time
     int milliseconds;
 };
 
-class benchmark {
+class Benchmark {
 public:
 
-	benchmark() 
+	Benchmark() 
     {
 		start_time = nullopt;
 		end_time = nullopt;

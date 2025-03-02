@@ -12,13 +12,13 @@ struct vertex
     optional<vec3> normal, color;
 };
 
-class triangle : public hittable
+class Triangle : public Hittable
 {
 public:
     vertex A, B, C;
 	shared_ptr<material> mat;
 
-    triangle(vertex A, vertex B, vertex C, shared_ptr<material> mat)
+    Triangle(vertex A, vertex B, vertex C, shared_ptr<material> mat)
 		: A(A), B(B), C(C), mat(mat)
     {
         AB = B.position - A.position;
@@ -26,7 +26,7 @@ public:
 		N = cross(AB, AC).normalize();
     }
 
-    bool hit(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
+    bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
     {
         // Calculate P vector and determinant
         vec3 P = cross(r.direction(), AC);

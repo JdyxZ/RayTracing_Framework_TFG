@@ -72,7 +72,7 @@ public:
                 for (int sample = 0; sample < scene.samples_per_pixel; sample++) 
                 {
                     // Get ray sample around pixel location
-                    ray r = get_ray_sample(pixel_row, pixel_column);
+                    Ray r = get_ray_sample(pixel_row, pixel_column);
 
 					// Get pixel color of the sample point that ray sample points to
                     pixel_color += ray_color(r, scene.bounce_max_depth, scene);
@@ -113,7 +113,7 @@ private:
     vec3   defocus_disk_v;      // Defocus disk vertical radius    
 
     // Construct a camera ray originating from the defocus disk and directed at randomly sampled point around the pixel location pixel_row, pixel_column.
-    ray get_ray_sample(int pixel_row, int pixel_column) const
+    Ray get_ray_sample(int pixel_row, int pixel_column) const
     {
         auto offset = sample_square();
 
@@ -126,10 +126,10 @@ private:
 
         auto ray_time = random_double();
 
-        return ray(ray_origin, ray_direction, ray_time);
+        return Ray(ray_origin, ray_direction, ray_time);
     }
 
-    color ray_color(const ray& r, int depth, const Scene& scene) const
+    color ray_color(const Ray& r, int depth, const Scene& scene) const
     {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
@@ -146,9 +146,9 @@ private:
             return sky_blend(r);
 
         // If the ray hits an object, calculate the color of the hit point
-        if (auto s = dynamic_cast<sphere*>(rec->object.get()))
+        if (auto s = dynamic_cast<Sphere*>(rec->object.get()))
         {
-            ray scattered;
+            Ray scattered;
             color attenuation;
 
             if (s->mat->scatter(r, rec, attenuation, scattered))
@@ -156,9 +156,9 @@ private:
 
             return color(0, 0, 0); 
         }
-        else if (auto t = dynamic_cast<triangle*>(rec->object.get()))
+        else if (auto t = dynamic_cast<Triangle*>(rec->object.get()))
         {
-            ray scattered;
+            Ray scattered;
             color attenuation;
 
             if (t->mat->scatter(r, rec, attenuation, scattered))
@@ -188,7 +188,7 @@ private:
         return sky_blend(r);
     }
 
-    color sky_blend(const ray& r) const
+    color sky_blend(const Ray& r) const
     {
         vec3 unit_direction = unit_vector(r.direction());
 
@@ -199,7 +199,7 @@ private:
         return lerp(a, start_color, end_color);
     }
 
-    optional<color> barycentric_color_interpolation(const shared_ptr<triangle_hit_record>& rec, triangle* t) const
+    optional<color> barycentric_color_interpolation(const shared_ptr<triangle_hit_record>& rec, Triangle* t) const
     {
         if (!rec->bc.has_value() || !t->has_vertex_colors())
             return nullopt;

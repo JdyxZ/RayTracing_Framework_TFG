@@ -8,7 +8,7 @@ class material
 public:
     virtual ~material() = default;
 
-    virtual bool scatter(const ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, ray& outgoing_ray) const 
+    virtual bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& outgoing_ray) const 
     {
         return false;
     }
@@ -19,7 +19,7 @@ class lambertian : public material
 public:
     lambertian(const color& albedo) : albedo(albedo) {}
 
-    bool scatter(const ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, ray& scattered_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
     {
 		// Generate random scatter direction
         auto scatter_direction = rec->normal + random_unit_vector();
@@ -29,7 +29,7 @@ public:
             scatter_direction = rec->normal;
 
 		// Create scattered ray
-        scattered_ray = ray(rec->p, scatter_direction, incoming_ray.time());
+        scattered_ray = Ray(rec->p, scatter_direction, incoming_ray.time());
         attenuation = albedo;
 
         return true;
@@ -44,14 +44,14 @@ class metal : public material
 public:
     metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
-    bool scatter(const ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, ray& reflected_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& reflected_ray) const override
     {
 		// Reflect the incoming ray
         vec3 reflected = reflect(incoming_ray.direction(), rec->normal);
         reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
 
 		// Create reflected ray
-        reflected_ray = ray(rec->p, reflected, incoming_ray.time());
+        reflected_ray = Ray(rec->p, reflected, incoming_ray.time());
         attenuation = albedo;
 
 		// Absorb the ray if it's reflected into the surface
@@ -67,7 +67,7 @@ class dielectric : public material {
 public:
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-    bool scatter(const ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, ray& scattered_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
     {
         // Attenuation is always 1 (the glass surface absorbs nothing)
         attenuation = color(1.0, 1.0, 1.0);
@@ -90,7 +90,7 @@ public:
 		vec3 scattering_direction = cannot_refract || reflect_prob > random_double() ? reflect(unit_direction, rec->normal) : refract(unit_direction, rec->normal, cos_theta, ri);
 
 		// Create scattered ray
-        scattered_ray = ray(rec->p, scattering_direction, incoming_ray.time());
+        scattered_ray = Ray(rec->p, scattering_direction, incoming_ray.time());
         return true;
     }
 

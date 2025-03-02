@@ -2,7 +2,7 @@
 #define HITTABLE_H
 
 // Forward declaration needed
-class hittable;
+class Hittable;
 
 enum PRIMITIVE
 {
@@ -23,7 +23,7 @@ public:
     vec3 normal;
     double t;
     bool front_face;
-    shared_ptr<hittable> object;
+    shared_ptr<Hittable> object;
     PRIMITIVE type = NOT_SPECIFIED;
 
     virtual ~hit_record() = default; 
@@ -57,11 +57,11 @@ public:
     }
 };
 
-class hittable {
+class Hittable {
 public:
-    virtual ~hittable() = default;
+    virtual ~Hittable() = default;
 
-    virtual bool hit(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const = 0;
+    virtual bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const = 0;
     virtual const PRIMITIVE get_type() const = 0;
 };
 

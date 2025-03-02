@@ -21,21 +21,21 @@ public:
     int    samples_per_pixel = 10;      // Count of random samples for each pixel
 
     // Scene primitives
-    vector<shared_ptr<hittable>> objects;
+    vector<shared_ptr<Hittable>> objects;
 
     // Rendering benchmark
-    benchmark chrono;
+    Benchmark chrono;
 
     Scene() {}
-    Scene(shared_ptr<hittable> object) { add(object); }
+    Scene(shared_ptr<Hittable> object) { add(object); }
 
     void clear() { objects.clear(); }
 
-    void add(shared_ptr<hittable> object) {
+    void add(shared_ptr<Hittable> object) {
         objects.push_back(object);
     }
 
-    bool intersect(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
+    bool intersect(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
     {
         shared_ptr<hit_record> temp_rec;
         bool hit_anything = false;

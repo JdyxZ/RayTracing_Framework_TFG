@@ -1,13 +1,13 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-class sphere : public hittable
+class Sphere : public Hittable
 {
 public:
     shared_ptr<material> mat;
 
     // Stationary sphere
-    sphere(const point3& static_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat) 
+    Sphere(const point3& static_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat) 
     {
         vec3 origin = static_center;
         vec3 direction = vec3(0);
@@ -16,7 +16,7 @@ public:
     }
 
     // Moving sphere
-    sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat)
+    Sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat)
     {
         vec3 origin = start_center;
         vec3 direction = end_center - start_center;
@@ -24,7 +24,7 @@ public:
         center = motion_vector(origin, direction);
     }
 
-    bool hit(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
+    bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
     {
         point3 current_center = center.at(r.time());
 

@@ -19,18 +19,18 @@ int main()
     auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
 
     // Spheres
-    auto sphere1 = make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground);
-    auto sphere2 = make_shared<sphere>(point3(0.0, 0.0, -1.2), 0.5, material_center);
-    auto sphere3 = make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left);
-	auto sphere4 = make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right);
-    auto sphere5 = make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.4, material_bubble);
+    auto sphere1 = make_shared<Sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground);
+    auto sphere2 = make_shared<Sphere>(point3(0.0, 0.0, -1.2), 0.5, material_center);
+    auto sphere3 = make_shared<Sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left);
+	auto sphere4 = make_shared<Sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right);
+    auto sphere5 = make_shared<Sphere>(point3(-1.0, 0.0, -1.0), 0.4, material_bubble);
 
 	// Triangles (define them in counter-clockwise order)
     vertex A, B, C;
 	A = vertex({ point3(0.2, -0.2, -0.5), nullopt, YELLOW });
     B = vertex({ point3(0.8, -0.2, -0.5), nullopt, CYAN });
 	C = vertex({ point3(0.2, 0, -0.5), nullopt, MAGENTA });
-	auto triangle1 = make_shared<triangle>(A, B, C, material_left);
+	auto triangle1 = make_shared<Triangle>(A, B, C, material_left);
     
     // Add primitives to scene
     scene1.add(sphere1);
@@ -56,34 +56,34 @@ int main()
                     auto albedo = color::random() * color::random();
                     sphere_material = make_shared<lambertian>(albedo);
                     auto center2 = center + vec3(0, random_double(0, .5), 0);
-                    scene2.add(make_shared<sphere>(center, center2, 0.2, sphere_material));
+                    scene2.add(make_shared<Sphere>(center, center2, 0.2, sphere_material));
                 }
                 else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
-                    scene2.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    scene2.add(make_shared<Sphere>(center, 0.2, sphere_material));
                 }
                 else {
                     // glass
                     sphere_material = make_shared<dielectric>(1.5);
-                    scene2.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    scene2.add(make_shared<Sphere>(center, 0.2, sphere_material));
                 }
             }
         }
     }
 
     auto material1 = make_shared<dielectric>(1.5);
-    scene2.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
+    scene2.add(make_shared<Sphere>(point3(0, 1, 0), 1.0, material1));
 
     auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
-    scene2.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
+    scene2.add(make_shared<Sphere>(point3(-4, 1, 0), 1.0, material2));
 
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
-    scene2.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+    scene2.add(make_shared<Sphere>(point3(4, 1, 0), 1.0, material3));
 
-    scene2.add(make_shared<sphere>(point3(0, -1000, 0), 1000, material_ground));
+    scene2.add(make_shared<Sphere>(point3(0, -1000, 0), 1000, material_ground));
 
     // scene2.add(triangle1);
 

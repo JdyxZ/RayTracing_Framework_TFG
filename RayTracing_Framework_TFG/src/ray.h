@@ -3,18 +3,18 @@
 
 #include "vec3.h"
 
-class ray 
+class Ray 
 {
 public:
-    ray() {}
+    Ray() {}
 
     // Constant ray
-    ray(const point3& origin, const vec3& direction)
+    Ray(const point3& origin, const vec3& direction)
         : orig(origin), dir(direction) {
     }
 
     // Discrete time ray
-    ray(const point3& origin, const vec3& direction, double time) 
+    Ray(const point3& origin, const vec3& direction, double time) 
         : orig(origin), dir(direction), tm(time) {}
 
     const point3& origin() const 
@@ -42,6 +42,6 @@ private:
     double tm;
 };
 
-using motion_vector = ray;
+using motion_vector = Ray;
 
 #endif
