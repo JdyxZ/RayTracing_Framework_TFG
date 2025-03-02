@@ -82,6 +82,8 @@ int main()
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     scene2.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
+    scene2.add(make_shared<sphere>(point3(0, -1000, 0), 1000, material_ground));
+
     // scene2.add(triangle1);
 
     // Create and set camera 1 settings
@@ -96,7 +98,7 @@ int main()
     camera cam2;
     cam2.aspect_ratio = 16.0 / 9.0;
     cam2.image_width = 1200;
-    cam2.samples_per_pixel = 500;
+    cam2.samples_per_pixel = 50;
     cam2.bounce_max_depth = 50;
     cam2.vertical_fov = 20;
     cam2.lookfrom = point3(13, 2, 3);
@@ -106,12 +108,12 @@ int main()
     cam2.focus_distance = 10.0;
 
 	// Initialize the camera
-    cam1.initialize();
+    cam2.initialize();
 
     // Render scene
-    cam1.render(scene1);
+    cam2.render(scene2);
 
     // Benchmark
-    scene1.chrono.print_elapsed();
+    scene2.chrono.print_elapsed();
 }
         
