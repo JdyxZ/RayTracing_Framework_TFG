@@ -1,4 +1,4 @@
-
+/*
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
@@ -6,15 +6,14 @@
 #include "hittable_list.h"
 #include "triangle.h"
 #include <memory>
-#include <string>
 
-bool load_obj(const std::string& filename, hittable_list& scene, std::shared_ptr<material> mat) 
+bool load_obj(const string& filename, hittable_list& scene, std::shared_ptr<material> mat) 
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
-    std::string aux1, aux2;
+    string warn, err;
+    string aux1, aux2;
     bool aux2 = false;
 
     if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), aux2.c_str(), aux2))
@@ -42,5 +41,5 @@ bool load_obj(const std::string& filename, hittable_list& scene, std::shared_ptr
 }
 
 #endif
-
+*/
 

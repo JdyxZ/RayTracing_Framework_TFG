@@ -2,19 +2,23 @@
 #define CAMERA_H
 
 #include "hittable.h"
+#include "image.h"
 
 class camera {
 public:
 
     // Camera settings
     double vertical_fov = 90;           // Vertical view angle (field of view)
-    double aspect_ratio = 16.0 / 9.0;   // Ratio of image width over height
     double defocus_angle = 0;           // Angle of the cone with apex at viewport center and base at camera center (defocus disk)
     double focus_distance = 10;         // Distance from camera lookfrom point to plane of perfect focus
 
-	// Image adn viewport settings
+    // Image settings
+    GRAPHIC_FORMAT image_format = PNG;  // Image format
+    int image_quality = 100;            // Only for JPG images
     int    image_width = 400;           // Rendered image width in pixel count
-    int    image_height ;               // Rendered image height
+    double aspect_ratio = 16.0 / 9.0;   // Ratio of image width over height
+
+	// Viewport settings
     double viewport_height;	            // Height of viewport
 	double viewport_width;              // Width of viewport
 
@@ -32,9 +36,8 @@ public:
 
     void initialize() 
     {
-        // Calculate the image height, and ensure that it's at least 1.
-        image_height = int(image_width / aspect_ratio);
-        image_height = (image_height < 1) ? 1 : image_height;
+        // Init image
+        image = new Image(image_width, image_height, aspect_ratio);
 
         // Determine viewport dimensions
         auto theta = degrees_to_radians(vertical_fov);
@@ -68,14 +71,8 @@ public:
 
     void render(hittable_list& scene)
     {
-        // Create image file
-        std::ofstream file = get_file();
-
         // Start benchmark chrono
 		scene.chrono.start();
-
-        // Image file header
-        file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
         for (int pixel_row = 0; pixel_row < image_height; pixel_row++)
         {
@@ -100,16 +97,33 @@ public:
                 // Avarage samples
 				pixel_color /= samples_per_pixel;
 
-				// Write color
-                write_color(file, pixel_color);
+				// Compute color
+                tuple<int,int,int> RGB_color = compute_color(pixel_color);
+
+				// Determine pixel position in image buffer
+                int pixel_position = 3 * (image_width * pixel_row + pixel_column);
+
+                // Save pixel color into image buffer (row-major order)
+                image->write_pixel(pixel_position, RGB_color);
             }
         }
+
+        // Progress info end line
+        std::cout << std::endl;
 
         // End benchmark chrono
         scene.chrono.end();
 
-        // Close file
-        file.close();
+        // Save image with desired format
+        switch (image_format)
+        {
+        case PNG:
+            image->savePNG();
+            break;
+        case JPG:
+            image->saveJPG(100);
+            break;
+        }
     }
 
 private:
@@ -121,6 +135,10 @@ private:
     vec3   side, up, view;      // Camera frame basis vectors
     vec3   defocus_disk_u;      // Defocus disk horizontal radius
     vec3   defocus_disk_v;      // Defocus disk vertical radius
+
+    // Image
+    Image* image;
+    int image_height;                       // Rendered image height                    
 
     // Construct a camera ray originating from the defocus disk and directed at randomly sampled point around the pixel location pixel_row, pixel_column.
     ray get_ray_sample(int pixel_row, int pixel_column) const

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\file_to_image.h">
+    <ClInclude Include="src\image.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="src\triangle.h">
@@ -58,6 +58,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="src\benchmark.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stb_image_write.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

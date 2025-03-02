@@ -1,7 +1,7 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-#define CULLING false;
+bool CULLING = false;
 
 struct vertex 
 {
@@ -34,11 +34,14 @@ public:
 
         // If the determinant is negative, the triangle is back-facing.
 		// If the determinant is close to 0, the ray misses the triangle (parallel).
-        #if CULLING
-        if (det < kEpsilon) return false;
-        #else
-        if (fabs(det) < kEpsilon) return false;
-        #endif
+		if (CULLING)
+		{
+			if (det < kEpsilon) return false;
+		}
+		else
+		{
+			if (fabs(det) < kEpsilon) return false;
+		}
 
         // Invert determinant
         double invDet = 1 / det;
