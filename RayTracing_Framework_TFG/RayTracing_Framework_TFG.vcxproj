@@ -135,7 +135,7 @@
     <ClInclude Include="src\core.h" />
     <ClInclude Include="src\image.h" />
     <ClInclude Include="src\hittable.h" />
-    <ClInclude Include="src\hittable_list.h" />
+    <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\interval.h" />
     <ClInclude Include="src\material.h" />
     <ClInclude Include="src\obj_loader.h" />

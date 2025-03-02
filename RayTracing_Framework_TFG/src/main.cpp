@@ -1,6 +1,6 @@
 #include "core.h"
 #include "hittable.h"
-#include "hittable_list.h"
+#include "scene.h"
 #include "material.h"
 #include "sphere.h"
 #include "triangle.h"
@@ -9,7 +9,7 @@
 int main() 
 {
     // Scene 1
-    hittable_list scene1;
+    Scene scene1;
 
     // Materials
     auto material_ground = make_shared<lambertian>(color(0.5, 0.5, 0.5));
@@ -41,7 +41,7 @@ int main()
     // scene1.add(triangle1);
 
     // Scene 2
-    hittable_list scene2;
+    Scene scene2;
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -87,20 +87,25 @@ int main()
 
     // scene2.add(triangle1);
 
-    // Create and set camera 1 settings
-    camera cam1;
-    cam1.image_width = 800;
-    cam1.bounce_max_depth = 50;
+    // Image 1 settings
+    Image img1;
+    img1.width = 800;
+
+    // Camera 1 settings
+    Camera cam1;
     cam1.vertical_fov = 90;
     cam1.defocus_angle = 0;
-    cam1.samples_per_pixel = 50;
 
-    // Create and set camera 2 settings
-    camera cam2;
-    cam2.aspect_ratio = 16.0 / 9.0;
-    cam2.image_width = 1200;
-    cam2.samples_per_pixel = 50;
-    cam2.bounce_max_depth = 50;
+    // Scene 1 settings
+    scene1.bounce_max_depth = 50;
+    scene1.samples_per_pixel = 50;
+
+    // Image 2 settings
+    Image img2;
+    img2.width = 1200;
+
+    // Camera 2 settings
+    Camera cam2;
     cam2.vertical_fov = 20;
     cam2.lookfrom = point3(13, 2, 3);
     cam2.lookat = point3(0, 0, 0);
@@ -108,11 +113,18 @@ int main()
     cam2.defocus_angle = 0.6;
     cam2.focus_distance = 10.0;
 
+    // Scene 2 settings
+    scene2.bounce_max_depth = 50;
+    scene2.samples_per_pixel = 50;
+
+    // Intialize image
+    img2.initialize();
+
 	// Initialize the camera
-    cam2.initialize();
+    cam2.initialize(img2);
 
     // Render scene
-    cam2.render(scene2);
+    cam2.render(scene2, img2);
 
     // Benchmark
     scene2.chrono.print_elapsed();

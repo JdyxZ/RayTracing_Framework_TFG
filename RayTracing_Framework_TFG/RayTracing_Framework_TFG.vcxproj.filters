@@ -42,7 +42,7 @@
     <ClInclude Include="src\sphere.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="src\hittable_list.h">
+    <ClInclude Include="src\scene.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="src\camera.h">

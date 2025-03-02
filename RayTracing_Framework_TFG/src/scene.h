@@ -1,5 +1,5 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABLE_LIST_H
+#ifndef SCENE_H
+#define SCENE_H
 
 #include "benchmark.h"
 #include "hittable.h"
@@ -9,14 +9,25 @@ using std::vector;
 using std::make_shared;
 using std::shared_ptr;
 
-class hittable_list 
+class Scene 
 {
 public:
+
+    // Ray scattering settings
+    int    bounce_max_depth = 10;       // Maximum number of ray bounces into scene
+    double min_hit_distance = 0.001;    // Greatly solves shadow acne
+
+    // Antialiasing and noise settings
+    int    samples_per_pixel = 10;      // Count of random samples for each pixel
+
+    // Scene primitives
     vector<shared_ptr<hittable>> objects;
+
+    // Rendering benchmark
     benchmark chrono;
 
-    hittable_list() {}
-    hittable_list(shared_ptr<hittable> object) { add(object); }
+    Scene() {}
+    Scene(shared_ptr<hittable> object) { add(object); }
 
     void clear() { objects.clear(); }
 

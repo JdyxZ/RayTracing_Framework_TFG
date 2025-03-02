@@ -3,11 +3,11 @@
 #define OBJ_LOADER_H
 
 #include "tiny_obj_loader.h"
-#include "hittable_list.h"
+#include "scene.h"
 #include "triangle.h"
 #include <memory>
 
-bool load_obj(const string& filename, hittable_list& scene, std::shared_ptr<material> mat) 
+bool load_obj(const string& filename, scene& scene, std::shared_ptr<material> mat) 
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;

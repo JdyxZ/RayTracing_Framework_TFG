@@ -19,14 +19,13 @@ class Image
 {
 public:
 
-    string name;					    // The name is generated with timestamp
-    std::vector<unsigned char> data;    // Image buffer
-    int width;                          // Rendered image width in pixel count
+    IMAGE_FORMAT format = PNG;          // Image format
+    int quality = 100;                  // Only for JPG images
+    int width = 400;                    // Rendered image width in pixel count
     int height;                         // Rendered image height
-    double aspect_ratio;                // Ratio of image width over height
-    int channels = 3;                   // RGB channels
+    double aspect_ratio = 16.0 / 9.0;   // Ratio of image width over height
 
-    Image(int width, int& height, double aspect_ratio)
+    void initialize()
     {
         name = define_name();
 
@@ -34,10 +33,6 @@ public:
         height = (height < 1) ? 1 : height;
 
         data.resize(3 * width * height);
-
-        this->width = width;
-        this->height = height;
-        this->aspect_ratio = aspect_ratio;
     }
 
     void write_pixel(int pixel_position, tuple<int, int, int> RGB_color)
@@ -50,29 +45,26 @@ public:
         data[pixel_position + 2] = blue_byte;
     }
 
-    void savePNG()
+    void save()
     {
-        auto PNG_name = name + ".png";
-        int success = stbi_write_png(PNG_name.c_str(), width, height, channels, data.data(), width * channels);
-
-        if (success)
-            std::cout << "Image successfully written: " << PNG_name << std::endl;
-        else
-            std::cerr << "Error: Failed to write image: " << PNG_name << std::endl;
+        switch (format)
+        {
+        case PNG:
+            savePNG();
+            break;
+        case JPG:
+            saveJPG(quality);
+            break;
+        }
     }
 
-    void saveJPG(int quality)
-    {
-        auto JPG_name = name + ".jpg";
-        int success = stbi_write_jpg(JPG_name.c_str(), width, height, channels, data.data(), quality);
-
-        if (success)
-            std::cout << "Image successfully written: " << JPG_name << std::endl;
-        else
-            std::cerr << "Error: Failed to write image: " << JPG_name << std::endl;
-    }
+    
 
 private:
+
+    string name;					    // The name is generated with timestamp
+    vector<unsigned char> data;         // Image buffer
+    int channels = 3;                   // RGB channels
 
     string define_name()
     {
@@ -100,6 +92,28 @@ private:
         std::filesystem::create_directories(folderPath);
 
         return fileName;
+    }
+
+    void savePNG()
+    {
+        auto PNG_name = name + ".png";
+        int success = stbi_write_png(PNG_name.c_str(), width, height, channels, data.data(), width * channels);
+
+        if (success)
+            std::cout << "Image successfully written: " << PNG_name << std::endl;
+        else
+            std::cerr << "Error: Failed to write image: " << PNG_name << std::endl;
+    }
+
+    void saveJPG(int quality)
+    {
+        auto JPG_name = name + ".jpg";
+        int success = stbi_write_jpg(JPG_name.c_str(), width, height, channels, data.data(), quality);
+
+        if (success)
+            std::cout << "Image successfully written: " << JPG_name << std::endl;
+        else
+            std::cerr << "Error: Failed to write image: " << JPG_name << std::endl;
     }
 };
 
