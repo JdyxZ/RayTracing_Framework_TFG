@@ -9,7 +9,7 @@
 #define __STDC_LIB_EXT1__
 #include "stb_image_write.h"
 
-enum GRAPHIC_FORMAT
+enum IMAGE_FORMAT
 {
     PNG,
     JPG
@@ -71,6 +71,7 @@ public:
         else
             std::cerr << "Error: Failed to write image: " << JPG_name << std::endl;
     }
+
 private:
 
     string define_name()

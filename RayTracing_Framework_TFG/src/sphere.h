@@ -6,11 +6,29 @@ class sphere : public hittable
 public:
     shared_ptr<material> mat;
 
-    sphere(const point3& center, double radius, shared_ptr<material> mat) : center(center), radius(std::fmax(0, radius)), mat(mat) {}
+    // Stationary sphere
+    sphere(const point3& static_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat) 
+    {
+        vec3 origin = static_center;
+        vec3 direction = vec3(0);
+
+        center = motion_vector(origin, direction);
+    }
+
+    // Moving sphere
+    sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<material> mat) : radius(std::fmax(0, radius)), mat(mat)
+    {
+        vec3 origin = start_center;
+        vec3 direction = end_center - start_center;
+
+        center = motion_vector(origin, direction);
+    }
 
     bool hit(const ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
     {
-        vec3 oc = center - r.origin();
+        point3 current_center = center.at(r.time());
+
+        vec3 oc = current_center - r.origin();
         auto a = r.direction().length_squared();
 		auto h = dot(r.direction(), oc); // h = -b/2
         auto c = oc.length_squared() - radius * radius;
@@ -30,7 +48,7 @@ public:
         }
 
         vec3 phit = r.at(root);
-        vec3 outward_normal = (phit - center) / radius;
+        vec3 outward_normal = (phit - current_center) / radius;
 
         // Hit record
         auto sph_rec = std::make_shared<sphere_hit_record>();
@@ -50,7 +68,7 @@ public:
     }
 
 private:
-    point3 center;
+    motion_vector center;
     double radius;
 };
 

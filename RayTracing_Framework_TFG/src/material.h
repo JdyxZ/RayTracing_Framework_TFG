@@ -29,7 +29,7 @@ public:
             scatter_direction = rec->normal;
 
 		// Create scattered ray
-        scattered_ray = ray(rec->p, scatter_direction);
+        scattered_ray = ray(rec->p, scatter_direction, incoming_ray.time());
         attenuation = albedo;
 
         return true;
@@ -51,7 +51,7 @@ public:
         reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
 
 		// Create reflected ray
-        reflected_ray = ray(rec->p, reflected);
+        reflected_ray = ray(rec->p, reflected, incoming_ray.time());
         attenuation = albedo;
 
 		// Absorb the ray if it's reflected into the surface
@@ -90,7 +90,7 @@ public:
 		vec3 scattering_direction = cannot_refract || reflect_prob > random_double() ? reflect(unit_direction, rec->normal) : refract(unit_direction, rec->normal, cos_theta, ri);
 
 		// Create scattered ray
-        scattered_ray = ray(rec->p, scattering_direction);
+        scattered_ray = ray(rec->p, scattering_direction, incoming_ray.time());
         return true;
     }
 

@@ -13,7 +13,7 @@ public:
     double focus_distance = 10;         // Distance from camera lookfrom point to plane of perfect focus
 
     // Image settings
-    GRAPHIC_FORMAT image_format = PNG;  // Image format
+    IMAGE_FORMAT image_format = PNG;    // Image format
     int image_quality = 100;            // Only for JPG images
     int    image_width = 400;           // Rendered image width in pixel count
     double aspect_ratio = 16.0 / 9.0;   // Ratio of image width over height
@@ -152,7 +152,9 @@ private:
         auto ray_origin = (defocus_angle <= 0) ? lookfrom : defocus_disk_sample(lookfrom, defocus_disk_u, defocus_disk_v);
         auto ray_direction = pixel_sample - ray_origin;
 
-        return ray(ray_origin, ray_direction);
+        auto ray_time = random_double();
+
+        return ray(ray_origin, ray_direction, ray_time);
     }
 
     color ray_color(const ray& r, int depth, const hittable_list& scene) const
