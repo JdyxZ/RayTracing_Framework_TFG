@@ -4,6 +4,7 @@
 #include "interval.h"
 #include "vec3.h"
 #include <fstream>
+#include <tuple>
 
 // Colors
 const color RED(1.0, 0.0, 0.0);
@@ -29,7 +30,7 @@ inline double linear_to_gamma(double linear_component)
     return 0;
 }
 
-void write_color(std::ofstream& file, const color& pixel_color)
+tuple<int, int, int> compute_color(const color& pixel_color)
 {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
@@ -42,12 +43,11 @@ void write_color(std::ofstream& file, const color& pixel_color)
 
     // Translate the [0,1] component values to the byte range [0,255].
     static const interval intensity(0.000, 0.999);
-    int rbyte = int(256 * intensity.clamp(r));
-    int gbyte = int(256 * intensity.clamp(g));
-    int bbyte = int(256 * intensity.clamp(b));
+    int red_byte = int(256 * intensity.clamp(r));
+    int green_byte = int(256 * intensity.clamp(g));
+    int blue_byte = int(256 * intensity.clamp(b));
 
-    // Write out the pixel color components.
-    file << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
+	return std::make_tuple(red_byte, green_byte, blue_byte);
 }
 
 

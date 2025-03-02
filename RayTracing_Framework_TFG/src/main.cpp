@@ -1,4 +1,3 @@
-#include "file_to_image.h"
 #include "core.h"
 #include "hittable.h"
 #include "hittable_list.h"
@@ -107,12 +106,12 @@ int main()
     cam2.focus_distance = 10.0;
 
 	// Initialize the camera
-    cam2.initialize();
+    cam1.initialize();
 
     // Render scene
-    cam2.render(scene2);
+    cam1.render(scene1);
 
     // Benchmark
-    scene2.chrono.print_elapsed();
+    scene1.chrono.print_elapsed();
 }
-
+        

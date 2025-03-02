@@ -84,10 +84,10 @@ private:
         elapsed_time et;
 
         // Extract days, hours, minutes, and seconds (all integer divisions)
-        et.hours = total_seconds / (60 * 60);
-        et.minutes = (total_seconds % (60 * 60)) / 60;
-        et.seconds = total_seconds % 60;
-        et.milliseconds = total_milliseconds % 1000;
+        et.hours = int(total_seconds / (60 * 60));
+        et.minutes = int((total_seconds % (60 * 60)) / 60);
+        et.seconds = int(total_seconds % 60);
+        et.milliseconds = int(total_milliseconds % 1000);
 
         return et;
     }

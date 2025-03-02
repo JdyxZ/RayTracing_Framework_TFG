@@ -1,12 +1,6 @@
 #ifndef CORE_H
 #define CORE_H
 
-// Constants
-constexpr double infinity = std::numeric_limits<double>::infinity();
-constexpr double pi = 3.1415926535897932385;
-constexpr double kEpsilon = 1e-8;
-constexpr double practically_zero = 1e-160;
-
 // External Headers
 #include <cmath>
 #include <cstdlib>
@@ -14,12 +8,23 @@ constexpr double practically_zero = 1e-160;
 #include <limits>
 #include <memory>
 #include <random>
+#include <string>
+#include <optional>
+#include <tuple>
+
+// Constants
+constexpr double infinity = std::numeric_limits<double>::infinity();
+constexpr double pi = 3.1415926535897932385;
+constexpr double kEpsilon = 1e-8;
+constexpr double practically_zero = 1e-160;
 
 // C++ Std Usings
 using std::make_shared;
 using std::shared_ptr;
 using std::nullopt;
 using std::optional;
+using std::string;
+using std::tuple;
 
 // Utility Functions
 
