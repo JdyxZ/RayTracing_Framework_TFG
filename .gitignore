@@ -6,6 +6,11 @@
 # Ignored directories
 images/
 
+# Ignore Visual Studio solution and project files
+*.vcxproj
+*.vcxproj.filters
+*.sln
+
 # User-specific files
 *.rsuser
 *.suo
