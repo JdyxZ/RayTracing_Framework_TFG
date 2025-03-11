@@ -2,7 +2,6 @@
 #define CAMERA_H
 
 #include "hittable.h"
-#include "image.h"
 
 class Camera {
 public:
@@ -21,7 +20,7 @@ public:
     point3 lookat = point3(0, 0, -1);   // Point camera is looking at
     vec3   world_up = vec3(0, 1, 0);    // Camera-relative "up" direction
 
-    void initialize(const Image& image) 
+    void initialize(const ImageWriter& image)
     {
         // Determine viewport dimensions
         auto theta = degrees_to_radians(vertical_fov);
@@ -53,7 +52,7 @@ public:
         defocus_disk_v = up * defocus_radius * focus_distance;
     }
 
-    void render(Scene& scene, Image& image)
+    void render(Scene& scene, ImageWriter& image)
     {
         // Start benchmark chrono
 		scene.chrono.start();

@@ -4,7 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Ignored directories
-images/
+render/
 
 # Ignore Visual Studio solution and project files
 *.vcxproj

@@ -4,6 +4,8 @@
 // External Headers
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -21,13 +23,21 @@ constexpr double practically_zero = 1e-160;
 
 // C++ Std Usings
 using std::make_shared;
+using std::make_pair;
 using std::shared_ptr;
 using std::nullopt;
 using std::optional;
 using std::string;
 using std::tuple;
+using std::pair;
+using std::floor;
 
 // Utility Functions
+inline double clamp(double value, double min, double max) 
+{
+    if (min > max) std::swap(min, max);
+    return std::max(min, std::min(value, max));
+}
 
 inline double degrees_to_radians(double degrees) 
 {

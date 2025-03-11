@@ -17,7 +17,8 @@ public:
 class lambertian : public Material 
 {
 public:
-    lambertian(const color& albedo) : albedo(albedo) {}
+    lambertian(const color& albedo) : texture(make_shared<solid_color>(albedo)) {}
+    lambertian(shared_ptr<Texture> texture) : texture(texture) {}
 
     bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
     {
@@ -30,13 +31,13 @@ public:
 
 		// Create scattered ray
         scattered_ray = Ray(rec->p, scatter_direction, incoming_ray.time());
-        attenuation = albedo;
+        attenuation = texture->value(rec->texture_coordinates, rec->p);
 
         return true;
     }
 
 private:
-    color albedo;
+    shared_ptr<Texture> texture;
 };
 
 class metal : public Material 

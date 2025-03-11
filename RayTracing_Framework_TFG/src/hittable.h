@@ -28,6 +28,7 @@ public:
     double t;
     bool front_face;
     shared_ptr<Material> material;
+    pair<double, double> texture_coordinates;
     PRIMITIVE type = NOT_SPECIFIED;
 
     virtual ~hit_record() = default; 

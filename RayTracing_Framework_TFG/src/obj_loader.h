@@ -2,7 +2,6 @@
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
-#include "tiny_obj_loader.h"
 #include "scene.h"
 #include "triangle.h"
 #include <memory>

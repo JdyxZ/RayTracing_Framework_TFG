@@ -1,13 +1,5 @@
-#ifndef IMAGE_H
-#define IMAGE_H
-
-#include <fstream>
-#include <filesystem>
-#include <iostream>
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define __STDC_LIB_EXT1__
-#include "stb_image_write.h"
+#ifndef IMAGE_WRITER_H
+#define IMAGE_WRITER_H
 
 enum IMAGE_FORMAT
 {
@@ -15,7 +7,7 @@ enum IMAGE_FORMAT
     JPG
 };
 
-class Image
+class ImageWriter
 {
 public:
 
@@ -58,8 +50,6 @@ public:
         }
     }
 
-    
-
 private:
 
     string name;					    // The name is generated with timestamp
@@ -85,7 +75,7 @@ private:
         string dateTime = string(dateTimeStr);
 
         // Construct the file name and path
-        string folderPath = "images/";
+        string folderPath = "render/";
         string fileName = folderPath + dateTime;
 
         // Create directory for images in case it does not already exist
@@ -117,4 +107,6 @@ private:
     }
 };
 
-#endif IMAGE_H
+#endif 
+
+

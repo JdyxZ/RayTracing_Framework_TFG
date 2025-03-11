@@ -10,6 +10,7 @@ struct vertex
 
 	// Optional vertex attributes
     optional<vec3> normal, color;
+    optional<pair<double, double>> uv;
 };
 
 class Triangle : public Hittable
@@ -72,6 +73,7 @@ public:
         tri_rec->p = r.at(t);
         tri_rec->determine_normal_direction(r.direction(), N);
         tri_rec->material = material;
+        tri_rec->texture_coordinates = interpolate_texture_coordinates(u, v, w);
         tri_rec->type = type;
         tri_rec->bc = { u, v, w };
 
@@ -106,6 +108,24 @@ private:
     vec3 AB, AC, N;
     shared_ptr<Material> material;
     aabb bbox;
+
+    pair<double, double> interpolate_texture_coordinates(double u, double v, double w) const
+    {
+        // If any vertex is missing UVs, return a default (0,0) coordinate
+        if (!A.uv.has_value() || !B.uv.has_value() || !C.uv.has_value())
+            return { 0.0, 0.0 };
+
+        // Retrieve the UVs from the vertices
+        auto [uA, vA] = A.uv.value();
+        auto [uB, vB] = B.uv.value();
+        auto [uC, vC] = C.uv.value();
+
+        // Interpolate UV coordinates using barycentric coordinates
+        double u_interp = w * uA + u * uB + v * uC;
+        double v_interp = w * vA + u * vB + v * vC;
+
+        return { u_interp, v_interp };
+    }
 };
 
-#endif
+#endif 

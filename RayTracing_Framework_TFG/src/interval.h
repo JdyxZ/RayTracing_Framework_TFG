@@ -7,7 +7,14 @@ public:
 
     interval() : min(+infinity), max(-infinity) {} // Default interval is empty
 
-    interval(double min, double max) : min(min), max(max) {}
+    interval(double min, double max)
+    {
+        if (min > max)
+            std::swap(min, max);
+
+        this->min = min;
+        this->max = max;
+    }
 
     interval(const interval& a, const interval& b) // Create the interval tightly enclosing the two input intervals.
     {
@@ -18,6 +25,11 @@ public:
     double size() const 
     {
         return max - min;
+    }
+
+    bool is_empty() const
+    {
+        return size() > 0.0;
     }
 
     bool contains(double x) const 

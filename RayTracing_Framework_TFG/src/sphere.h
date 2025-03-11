@@ -62,8 +62,11 @@ public:
         sph_rec->t = root;
         sph_rec->p = phit;
         sph_rec->determine_normal_direction(r.direction(), outward_normal);
+        sph_rec->texture_coordinates = get_sphere_uv(outward_normal);
         sph_rec->material = material;
         sph_rec->type = type;
+
+
         
         // Polymorphic assignment
         rec = sph_rec;
@@ -87,6 +90,18 @@ private:
     double radius;
     shared_ptr<Material> material;
     aabb bbox;
+
+    static pair<double, double> get_sphere_uv(const point3& p)
+    {
+        // p: a given point on the sphere of radius one, centered at the origin.
+        // u: returned value [0,1] of angle around the Y axis from X=-1.
+        // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+
+        auto theta = std::acos(-p.y());
+        auto phi = std::atan2(-p.z(), p.x()) + pi;
+
+        return make_pair(phi / (2 * pi), theta / pi);
+    }
 };
 
 #endif
