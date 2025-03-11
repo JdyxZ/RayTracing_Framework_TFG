@@ -8,6 +8,7 @@ public:
     {
         // Creates an implicit copy of the hittable list, which we will modify. 
         // The lifetime of the copied list only extends until this constructor exits.
+        type = BVH_NODE;
     }
 
     bvh_node(vector<shared_ptr<Hittable>>& objects, size_t start, size_t end) 
@@ -58,11 +59,6 @@ public:
     aabb bounding_box() const override 
     { 
         return bbox; 
-    }
-
-    const PRIMITIVE get_type() const override
-    {
-        return BVH_NODE;
     }
 
 private:

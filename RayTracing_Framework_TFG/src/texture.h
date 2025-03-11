@@ -63,12 +63,9 @@ public:
         // If we have no texture data, then return solid cyan as a debugging aid.
         if (image.height() <= 0) return CYAN;
 
-        // Texture coordinates interval
-        interval tex_coord_interval = interval(0, 1);
-
         // Clamp input texture coordinates to [0,1] x [1,0]
-        u = tex_coord_interval.clamp(u);
-        v = 1.0 - tex_coord_interval.clamp(v);  // Flip V to image coordinates
+        u = interval::unitary.clamp(u);
+        v = 1.0 - interval::unitary.clamp(v);  // Flip V to image coordinates
 
         // Get pixel location
         auto i = int(u * image.width());
@@ -89,7 +86,7 @@ private:
 class noise_texture : public Texture 
 {
 public:
-    noise_texture(double scale, double depth) : scale(scale), depth(depth) {}
+    noise_texture(double scale, int depth) : scale(scale), depth(depth) {}
 
     color value(pair<double, double> texture_coordinates, const point3& p) const override
     {
@@ -99,7 +96,7 @@ public:
 private:
     perlin noise;
     double scale = 1;
-    double depth = 7;
+    int depth = 7;
 };
 
 #endif

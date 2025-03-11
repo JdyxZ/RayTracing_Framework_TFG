@@ -11,6 +11,7 @@ enum PRIMITIVE
 {
 	SPHERE,
 	TRIANGLE,
+    QUAD,
     BVH_NODE,
 	NOT_SPECIFIED
 };
@@ -42,6 +43,15 @@ public:
     }
 };
 
+class sphere_hit_record : public hit_record
+{
+public:
+    sphere_hit_record()
+    {
+        type = SPHERE;
+    }
+};
+
 class triangle_hit_record : public hit_record
 {
 public:
@@ -53,12 +63,13 @@ public:
     }
 };
 
-class sphere_hit_record : public hit_record
+class quad_hit_record : public hit_record
 {
 public:
-    sphere_hit_record()
+
+    quad_hit_record() 
     {
-        type = SPHERE;
+        type = QUAD;
     }
 };
 
@@ -71,7 +82,10 @@ public:
 
     virtual aabb bounding_box() const = 0;
 
-    virtual const PRIMITIVE get_type() const = 0;
+    const PRIMITIVE get_type() const { return type; }
+
+protected:
+    PRIMITIVE type = NOT_SPECIFIED;
 };
 
 #endif

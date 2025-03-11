@@ -170,6 +170,8 @@ private:
 
             return 0.5 * (tri_rec->normal + WHITE);
             */
+        case QUAD:
+
         case SPHERE:
             if (rec->material->scatter(r, rec, attenuation, scattered))
                 return attenuation * ray_color(scattered, depth - 1, scene);

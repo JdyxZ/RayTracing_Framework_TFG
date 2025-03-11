@@ -21,6 +21,8 @@ public:
     Triangle(vertex A, vertex B, vertex C, shared_ptr<Material> material)
 		: A(A), B(B), C(C), material(material)
     {
+        type = TRIANGLE;
+
         AB = B.position - A.position;
         AC = C.position - A.position;
 		N = cross(AB, AC).normalize();
@@ -71,11 +73,11 @@ public:
         auto tri_rec = make_shared<triangle_hit_record>(); 
         tri_rec->t = t;
         tri_rec->p = r.at(t);
-        tri_rec->determine_normal_direction(r.direction(), N);
         tri_rec->material = material;
         tri_rec->texture_coordinates = interpolate_texture_coordinates(u, v, w);
         tri_rec->type = type;
         tri_rec->bc = { u, v, w };
+        tri_rec->determine_normal_direction(r.direction(), N);
 
 		// Polymorphic assignment
         rec = tri_rec;
@@ -98,13 +100,7 @@ public:
         return bbox; 
     }
 
-    const PRIMITIVE get_type() const override
-    {
-        return SPHERE;
-    }
-
 private:
-    PRIMITIVE type = TRIANGLE;
     vec3 AB, AC, N;
     shared_ptr<Material> material;
     aabb bbox;

@@ -9,7 +9,10 @@ public:
 
     aabb() {} // The default AABB is empty, since intervals are empty by default.
 
-    aabb(const interval& x, const interval& y, const interval& z): x(x), y(y), z(z) {}
+    aabb(const interval& x, const interval& y, const interval& z): x(x), y(y), z(z) 
+    {
+        pad_to_minimums();
+    }
 
     aabb(const point3& a, const point3& b) 
     {
@@ -81,6 +84,17 @@ public:
         }
 
         return true;
+    }
+
+private:
+    double delta = 0.0001;
+
+    void pad_to_minimums() 
+    {
+        // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
+        if (x.size() < delta) x = x.expand(delta);
+        if (y.size() < delta) y = y.expand(delta);
+        if (z.size() < delta) z = z.expand(delta);
     }
 };
 

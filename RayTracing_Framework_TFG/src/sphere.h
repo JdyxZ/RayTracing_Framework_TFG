@@ -8,6 +8,8 @@ public:
     // Stationary sphere
     Sphere(const point3& static_center, const double radius, shared_ptr<Material> material) : radius(std::fmax(0, radius)), material(material)
     {
+        type = SPHERE;
+
         vec3 origin = static_center;
         vec3 direction = vec3(0);
 
@@ -61,9 +63,9 @@ public:
         auto sph_rec = make_shared<sphere_hit_record>();
         sph_rec->t = root;
         sph_rec->p = phit;
+        sph_rec->material = material;
         sph_rec->determine_normal_direction(r.direction(), outward_normal);
         sph_rec->texture_coordinates = get_sphere_uv(outward_normal);
-        sph_rec->material = material;
         sph_rec->type = type;
 
 
@@ -79,13 +81,7 @@ public:
         return bbox; 
     }
 
-    const PRIMITIVE get_type() const override
-    {
-        return SPHERE;
-    }
-
 private:
-    PRIMITIVE type = SPHERE;
     motion_vector center;
     double radius;
     shared_ptr<Material> material;

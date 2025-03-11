@@ -55,11 +55,12 @@ public:
         return interval(min - padding, max + padding);
     }
 
-    static const interval empty, universe;
+    static const interval empty, universe, unitary;
 };
 
 const interval interval::empty = interval(+infinity, -infinity);
 const interval interval::universe = interval(-infinity, +infinity);
+const interval interval::unitary = interval(0.0, 1.0);
 
 
 #endif

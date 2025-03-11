@@ -19,6 +19,7 @@
 #include "perlin.h"
 #include "texture.h"
 #include "material.h"
+#include "quad.h"
 #include "sphere.h"
 #include "triangle.h"
 #include "camera.h"
@@ -213,6 +214,42 @@ void perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(sphere2);
 }
 
+void quads(Scene& scene, Camera& camera, ImageWriter& image)
+{
+    // Image settings
+    image.aspect_ratio = 1.0;
+
+    // Camera settings
+    camera.vertical_fov = 80;
+    camera.lookfrom = point3(0, 0, 9);
+    camera.lookat = point3(0, 0, 0);
+
+    // Scene settings
+    scene.bounce_max_depth = 50;
+    scene.samples_per_pixel = 100;
+
+    // Materials
+    auto left_red = make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    auto back_green = make_shared<lambertian>(color(0.2, 1.0, 0.2));
+    auto right_blue = make_shared<lambertian>(color(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
+    auto lower_teal = make_shared<lambertian>(color(0.2, 0.8, 0.8));
+
+    // Quads
+    auto quad1 = make_shared<Quad>(point3(-3, -2, 5), vec3(0, 0, -4), vec3(0, 4, 0), left_red);
+    auto quad2 = make_shared<Quad>(point3(-2, -2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green);
+    auto quad3 = make_shared<Quad>(point3(3, -2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue);
+    auto quad4 = make_shared<Quad>(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange);
+    auto quad5 = make_shared<Quad>(point3(-2, -3, 5), vec3(4, 0, 0), vec3(0, 0, -4), lower_teal);
+
+    // Add primitives
+    scene.add(quad1);
+    scene.add(quad2);
+    scene.add(quad3);
+    scene.add(quad4);
+    scene.add(quad5);
+}
+
 int main()
 {
     // Create render objects
@@ -221,7 +258,7 @@ int main()
     ImageWriter image;
 
     // Choose rendering scene
-    switch (4)
+    switch (5)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -238,6 +275,10 @@ int main()
     case 4:  
         perlin_spheres(scene, camera, image);     
         break;
+    case 5:  
+        quads(scene, camera, image);
+        break;
+
     }
 
     // Boost scene render with BVH
