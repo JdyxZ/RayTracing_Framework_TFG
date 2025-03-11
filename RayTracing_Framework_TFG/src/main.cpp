@@ -16,6 +16,7 @@
 #include "bvh.h"
 #include "image_writer.h"
 #include "image_reader.h"
+#include "perlin.h"
 #include "texture.h"
 #include "material.h"
 #include "sphere.h"
@@ -186,6 +187,32 @@ void earth(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(globe);
 }
 
+void perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
+{
+    // Camera settings
+    camera.vertical_fov = 20;
+    camera.lookfrom = point3(13, 2, 3);
+    camera.lookat = point3(0, 0, 0);
+
+    // Scene settings
+    scene.bounce_max_depth = 50;
+    scene.samples_per_pixel = 100;
+
+    // Textures
+    auto perlin_texture = make_shared<noise_texture>(4, 7);
+
+    // Materials
+    auto perlin_material = make_shared<lambertian>(perlin_texture);
+
+    // Spheres
+    auto sphere1 = make_shared<Sphere>(point3(0, -1000, 0), 1000, perlin_material);
+    auto sphere2 = make_shared<Sphere>(point3(0, 2, 0), 2, perlin_material);
+
+    // Add primitives
+    scene.add(sphere1);
+    scene.add(sphere2);
+}
+
 int main()
 {
     // Create render objects
@@ -194,7 +221,7 @@ int main()
     ImageWriter image;
 
     // Choose rendering scene
-    switch (3)
+    switch (4)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -207,6 +234,9 @@ int main()
         break;
     case 3:
         earth(scene, camera, image);
+        break;
+    case 4:  
+        perlin_spheres(scene, camera, image);     
         break;
     }
 

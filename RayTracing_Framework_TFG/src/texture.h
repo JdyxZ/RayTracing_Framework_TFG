@@ -86,4 +86,20 @@ private:
     ImageReader image;
 };
 
+class noise_texture : public Texture 
+{
+public:
+    noise_texture(double scale, double depth) : scale(scale), depth(depth) {}
+
+    color value(pair<double, double> texture_coordinates, const point3& p) const override
+    {
+        return color(.5, .5, .5) * (1 + std::sin(scale * p.z() + 10 * noise.turbulance(p, depth)));
+    }
+
+private:
+    perlin noise;
+    double scale = 1;
+    double depth = 7;
+};
+
 #endif
