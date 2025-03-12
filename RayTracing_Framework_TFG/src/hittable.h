@@ -12,6 +12,7 @@ enum PRIMITIVE
 	SPHERE,
 	TRIANGLE,
     QUAD,
+    BOX,
     BVH_NODE,
 	NOT_SPECIFIED
 };

@@ -1,7 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-class Scene 
+class Scene : public hittable_list
 {
 public:
 
@@ -16,54 +16,12 @@ public:
     bool sky_blend = true;
     color background = SKY_BLUE;
 
-    // Scene primitives
-    vector<shared_ptr<Hittable>> objects;
-
     // Rendering benchmark
     Benchmark chrono;
 
     Scene() {}
     Scene(shared_ptr<Hittable> object) { add(object); }
-
-    aabb bounding_box() const 
-    { 
-        return bbox; 
-    }
-
-    void add(shared_ptr<Hittable> object) 
-    {
-        objects.push_back(object);
-        bbox = aabb(bbox, object->bounding_box());
-    }
-
-    void clear() 
-    { 
-        objects.clear(); 
-    }
-
-    bool intersect(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
-    {
-        shared_ptr<hit_record> temp_rec;
-        bool hit_anything = false;
-		auto closest_object_so_far = ray_t.max;
-
-        for (const auto& object : objects) 
-        {
-            if (object->hit(r, interval(ray_t.min, closest_object_so_far), temp_rec))
-            {
-                hit_anything = true;
-                closest_object_so_far = temp_rec->t;
-                rec = temp_rec;
-            }
-        }
-
-        return hit_anything;
-    }
-
-private:
-    aabb bbox;
+	Scene(shared_ptr<hittable_list> list) { add(list); }
 };
-
-using hittable_list = Scene;
 
 #endif

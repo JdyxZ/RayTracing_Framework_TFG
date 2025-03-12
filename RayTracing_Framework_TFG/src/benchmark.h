@@ -61,7 +61,7 @@ public:
 		if (et.seconds > 0) 
 			std::cout << et.seconds << "s ";
 
-		if (et.milliseconds > 0) 
+		if (et.milliseconds >= 0) 
 			std::cout << et.milliseconds << "ms";
 
 		std::cout << std::endl;

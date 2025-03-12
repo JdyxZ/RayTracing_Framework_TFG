@@ -11,8 +11,9 @@
 
 // Framework headers
 #include "core.h"
-#include "hittable.h"
 #include "benchmark.h"
+#include "hittable.h"
+#include "hittable_list.h"
 #include "scene.h"
 #include "bvh.h"
 #include "image_writer.h"
@@ -21,6 +22,7 @@
 #include "texture.h"
 #include "material.h"
 #include "quad.h"
+#include "box.h"
 #include "sphere.h"
 #include "triangle.h"
 #include "camera.h"
@@ -319,6 +321,10 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     auto quad4 = make_shared<Quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white);
     auto quad5 = make_shared<Quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white);
     auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
+    
+    // Boxes
+	auto box1 = make_shared<Box>(point3(130, 0, 65), point3(295, 165, 230), white);
+	auto box2 = make_shared<Box>(point3(265, 0, 295), point3(430, 330, 460), white);
 
     // Add primitives
     scene.add(quad1);
@@ -327,8 +333,9 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad4);
     scene.add(quad5);
     scene.add(quad6);
+    scene.add(box1);
+    scene.add(box2);
 }
-
 
 int main()
 {
@@ -365,7 +372,6 @@ int main()
         cornell_box(scene, camera, image);
         break;
     }
-
 
     // Boost scene render with BVH
     auto BVH_tree = make_shared<bvh_node>(scene);
