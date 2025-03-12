@@ -92,7 +92,6 @@ class vec3 {
 };
 
 // Vector utility functions
-
 inline std::ostream& operator<<(std::ostream& out, const vec3& v) 
 {
     return out << v[0] << ' ' << v[1] << ' ' << v[2];
