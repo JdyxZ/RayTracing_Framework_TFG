@@ -82,7 +82,7 @@ public:
 
     virtual aabb bounding_box() const = 0;
 
-    const PRIMITIVE get_type() const { return type; }
+    virtual const PRIMITIVE get_type() const { return type; }
 
 protected:
     PRIMITIVE type = NOT_SPECIFIED;

@@ -142,7 +142,7 @@ private:
 
         // Sky hit
         if (!scene.intersect(r, ray_t, rec))
-            return sky_blend(r);
+            return scene.sky_blend ? sky_blend(r) : scene.background;
 
         // Hit object type
         PRIMITIVE hit_object_type = rec->type;
@@ -150,6 +150,10 @@ private:
         // If the ray hits an object, calculate the color of the hit point
         Ray scattered;
         color attenuation;
+
+        // Material intersection point colors
+        color color_from_scatter;
+        color color_from_emission = rec->material->emitted(rec->texture_coordinates, rec->p);
 
         switch (hit_object_type)
         {
@@ -173,12 +177,15 @@ private:
         case QUAD:
 
         case SPHERE:
-            if (rec->material->scatter(r, rec, attenuation, scattered))
-                return attenuation * ray_color(scattered, depth - 1, scene);
-            return color(0, 0, 0);
+            if (!rec->material->scatter(r, rec, attenuation, scattered))
+                return color_from_emission;
+            
+            color_from_scatter = attenuation * ray_color(scattered, depth - 1, scene);
+
+            return color_from_emission + color_from_scatter;
 
         default: // Unknown hit
-            return sky_blend(r);
+            return scene.sky_blend ? sky_blend(r) : scene.background;
         }
     }
 

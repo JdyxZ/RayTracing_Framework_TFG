@@ -1,14 +1,6 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "benchmark.h"
-#include "hittable.h"
-#include <vector>
-
-using std::vector;
-using std::make_shared;
-using std::shared_ptr;
-
 class Scene 
 {
 public:
@@ -19,6 +11,10 @@ public:
 
     // Antialiasing and noise settings
     int    samples_per_pixel = 10;      // Count of random samples for each pixel
+
+    // Scene background color
+    bool sky_blend = true;
+    color background = SKY_BLUE;
 
     // Scene primitives
     vector<shared_ptr<Hittable>> objects;

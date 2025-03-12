@@ -12,6 +12,7 @@
 // Framework headers
 #include "core.h"
 #include "hittable.h"
+#include "benchmark.h"
 #include "scene.h"
 #include "bvh.h"
 #include "image_writer.h"
@@ -250,6 +251,85 @@ void quads(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad5);
 }
 
+void simple_light(Scene& scene, Camera& camera, ImageWriter& image) 
+{
+    // Image settings
+    image.aspect_ratio = 1.0;
+
+    // Camera settings
+    camera.vertical_fov = 20;
+    camera.lookfrom = point3(26, 3, 6);
+    camera.lookat = point3(0, 2, 0);
+
+    // Scene settings
+    scene.sky_blend = false;
+    scene.background = BLACK;
+    scene.bounce_max_depth = 50;
+    scene.samples_per_pixel = 100;
+
+    // Textures
+    auto perlin_texture = make_shared<noise_texture>(4, 7);
+
+    // Materials
+    auto perlin_material = make_shared<lambertian>(perlin_texture);
+    auto diffuse_light_material = make_shared<diffuse_light>(color(4, 4, 4));
+
+    // Spheres
+    auto sphere1 = make_shared<Sphere>(point3(0, -1000, 0), 1000, perlin_material);
+    auto sphere2 = make_shared<Sphere>(point3(0, 2, 0), 2, perlin_material);
+    auto sphere3 = make_shared<Sphere>(point3(0, 7, 0), 2, diffuse_light_material);
+
+    // Quads
+    auto quad1 = make_shared<Quad>(point3(3, 1, -2), vec3(2, 0, 0), vec3(0, 2, 0), diffuse_light_material);
+
+    // Add primitives
+    scene.add(sphere1);
+    scene.add(sphere2);
+    scene.add(sphere3);
+    scene.add(quad1);
+}
+
+void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
+{
+    // Image settings
+    image.aspect_ratio = 1.0;
+    image.width = 600;
+
+    // Camera settings
+    camera.vertical_fov = 40;
+    camera.lookfrom = point3(278, 278, -800);
+    camera.lookat = point3(278, 278, 0);
+
+    // Scene settings
+    scene.sky_blend = false;
+    scene.background = BLACK;
+    scene.bounce_max_depth = 50;
+    scene.samples_per_pixel = 200;
+
+    // Materials
+    auto red = make_shared<lambertian>(color(.65, .05, .05));
+    auto white = make_shared<lambertian>(color(.73, .73, .73));
+    auto green = make_shared<lambertian>(color(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(color(15, 15, 15));
+
+    // Quads
+    auto quad1 = make_shared<Quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green);
+    auto quad2 = make_shared<Quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red);
+    auto quad3 = make_shared<Quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light);
+    auto quad4 = make_shared<Quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white);
+    auto quad5 = make_shared<Quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white);
+    auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
+
+    // Add primitives
+    scene.add(quad1);
+    scene.add(quad2);
+    scene.add(quad3);
+    scene.add(quad4);
+    scene.add(quad5);
+    scene.add(quad6);
+}
+
+
 int main()
 {
     // Create render objects
@@ -258,7 +338,7 @@ int main()
     ImageWriter image;
 
     // Choose rendering scene
-    switch (5)
+    switch (7)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -278,11 +358,19 @@ int main()
     case 5:  
         quads(scene, camera, image);
         break;
-
+    case 6:  
+        simple_light(scene, camera, image);
+        break;
+    case 7:  
+        cornell_box(scene, camera, image);
+        break;
     }
 
+
     // Boost scene render with BVH
-    scene = Scene(make_shared<bvh_node>(scene));
+    auto BVH_tree = make_shared<bvh_node>(scene);
+    scene.clear();
+    scene.add(BVH_tree);
 
     // Intialize image
     image.initialize();

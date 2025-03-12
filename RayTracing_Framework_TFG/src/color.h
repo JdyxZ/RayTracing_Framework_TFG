@@ -20,7 +20,7 @@ const color PINK(1.0, 0.75, 0.8);
 const color PURPLE(0.5, 0.0, 0.5);
 const color GRAY(0.5, 0.5, 0.5);
 const color ORANGE(1.0, 0.65, 0.0);
-const color SKY_BLUE(0.5, 0.7, 1.0); 
+const color SKY_BLUE(135.0 / 255.0, 206.0 / 255.0, 235.0 / 255.0);
 
 inline double linear_to_gamma(double linear_component)
 {

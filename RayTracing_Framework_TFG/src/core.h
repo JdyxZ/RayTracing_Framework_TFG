@@ -14,6 +14,7 @@
 #include <optional>
 #include <tuple>
 #include <algorithm>
+#include <vector>
 
 // Constants
 constexpr double infinity = std::numeric_limits<double>::infinity();
@@ -28,6 +29,7 @@ using std::shared_ptr;
 using std::nullopt;
 using std::optional;
 using std::string;
+using std::vector;
 using std::tuple;
 using std::pair;
 using std::floor;
