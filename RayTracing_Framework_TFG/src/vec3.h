@@ -136,6 +136,6 @@ inline vec3 operator/(const vec3& v, double t)
 using point3 = vec3;
 using color = vec3;
 using normal = vec3;
-
+using axis = vec3;
 
 #endif

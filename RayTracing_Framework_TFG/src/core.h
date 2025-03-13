@@ -34,7 +34,7 @@ using std::tuple;
 using std::pair;
 using std::floor;
 
-// Utility Functions
+// Utility methods
 inline double clamp(double value, double min, double max) 
 {
     if (min > max) std::swap(min, max);
@@ -71,8 +71,16 @@ inline int random_int(int min, int max)
 #include "interval.h"
 #include "ray.h"
 #include "vec3.h"
+#include "quaternion.h"
 #include "matrix.h"
 
+
+// Axis definitions (right-handed coordinate system)
+const axis x_axis = vec3(1, 0, 0);
+const axis y_axis = vec3(0, 1, 0);
+const axis z_axis = vec3(0, 0, -1);
+
+// vec3 utility methods
 inline double dot(const vec3& u, const vec3& v)
 {
     return u[0] * v[0]
