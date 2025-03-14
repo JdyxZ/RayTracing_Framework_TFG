@@ -25,6 +25,7 @@
 #include "box.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "constant_medium.h"
 #include "hittable_transform.h"
 #include "camera.h"
 
@@ -72,7 +73,7 @@ void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
                     }
                     else
                     {
-                        ;                       scene.add(make_shared<Sphere>(center, 0.2, sphere_material));
+                        scene.add(make_shared<Sphere>(center, 0.2, sphere_material));
                     }
                 }
                 // Metal
@@ -344,6 +345,164 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(box2);
 }
 
+void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
+{
+    // Image settings
+    image.aspect_ratio = 1.0;
+    image.width = 600;
+
+    // Camera settings
+    camera.vertical_fov = 40;
+    camera.lookfrom = point3(278, 278, -800);
+    camera.lookat = point3(278, 278, 0);
+
+    // Scene settings
+    scene.sky_blend = false;
+    scene.background = BLACK;
+    scene.bounce_max_depth = 50;
+    scene.samples_per_pixel = 200;
+
+    auto red = make_shared<lambertian>(color(.65, .05, .05));
+    auto white = make_shared<lambertian>(color(.73, .73, .73));
+    auto green = make_shared<lambertian>(color(.12, .45, .15));
+    auto light = make_shared<diffuse_light>(color(7, 7, 7));
+
+    auto quad1 = make_shared<Quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green);
+    auto quad2 = make_shared<Quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red);
+    auto quad3 = make_shared<Quad>(point3(113, 554, 127), vec3(330, 0, 0), vec3(0, 0, 305), light);
+    auto quad4 = make_shared<Quad>(point3(0, 555, 0), vec3(555, 0, 0), vec3(0, 0, 555), white);
+    auto quad5 = make_shared<Quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white);
+    auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
+
+    // Boxes
+    shared_ptr<Hittable> box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white);
+    shared_ptr<Hittable> box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white);
+
+    // Transformations
+    box1 = make_shared<rotate>(box1, y_axis, -15.0);
+    box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+    box2 = make_shared<rotate>(box2, y_axis, 18.0);
+    box2 = make_shared<translate>(box2, vec3(130, 0, 65));
+
+    // Constant medium
+    box1 = make_shared<constant_medium>(box1, 0.01, color(0, 0, 0));
+    box2 = make_shared<constant_medium>(box2, 0.01, color(1, 1, 1));
+
+    // Add primitives
+    scene.add(quad1);
+    scene.add(quad2);
+    scene.add(quad3);
+    scene.add(quad4);
+    scene.add(quad5);
+    scene.add(quad6);
+    scene.add(box1);
+    scene.add(box2);
+}
+
+void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
+{
+    // Image settings
+    image.aspect_ratio = 1.0;
+    image.width = 800;
+
+    // Camera settings
+    camera.vertical_fov = 40;
+    camera.lookfrom = point3(478, 278, -600);
+    camera.lookat = point3(278, 278, 0);
+
+    // Scene settings
+    scene.sky_blend = false;
+    scene.background = BLACK;
+    scene.bounce_max_depth = 40;
+    scene.samples_per_pixel = 10000;
+    int boxes_per_side = 20;
+
+    // Textures
+    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+    auto perlin_texture = make_shared<noise_texture>(0.2, 7);
+
+    // Materials
+    auto ground = make_shared<lambertian>(color(0.48, 0.83, 0.53));
+    auto light = make_shared<diffuse_light>(color(7, 7, 7));
+    auto sphere_material = make_shared<lambertian>(color(0.7, 0.3, 0.1));
+    auto dielectric_material = make_shared<dielectric>(1.5);
+    auto metal_material = make_shared<metal>(color(0.8, 0.8, 0.9), 1.0);
+    auto white_material = make_shared<lambertian>(color(.73, .73, .73));
+    auto perlin_material = make_shared<lambertian>(perlin_texture);
+    auto earth_surface = make_shared<lambertian>(earth_texture);
+
+    // Create ground boxes
+	hittable_list boxes;
+
+    for (int i = 0; i < boxes_per_side; i++) 
+    {
+        for (int j = 0; j < boxes_per_side; j++) 
+        {
+            auto w = 100.0;
+            auto x0 = -1000.0 + i * w;
+            auto z0 = -1000.0 + j * w;
+            auto y0 = 0.0;
+            auto x1 = x0 + w;
+            auto y1 = random_double(1, 101);
+            auto z1 = z0 + w;
+
+			auto box = make_shared<Box>(point3(x0, y0, z0), point3(x1, y1, z1), ground);
+
+            boxes.add(box);
+        }
+    }
+
+    auto box_bvh_tree = make_shared<bvh_node>(boxes);
+
+    // Light source
+    auto quad1 = make_shared<Quad>(point3(123, 554, 147), vec3(300, 0, 0), vec3(0, 0, 265), light);
+
+    // Material spheres
+    auto center1 = point3(400, 400, 200);
+    auto center2 = center1 + vec3(30, 0, 0);
+    auto sphere1 = make_shared<Sphere>(center1, center2, 50, sphere_material);
+	auto sphere2 = make_shared<Sphere>(point3(260, 150, 45), 50, dielectric_material);
+	auto sphere3 = make_shared<Sphere>(point3(0, 150, 145), 50, metal_material);
+
+	// Texture spheres
+    auto sphere4 = make_shared<Sphere>(point3(400, 200, 400), 100, earth_surface);
+
+	// Perlin noise spheres
+	auto sphere5 = make_shared<Sphere>(point3(220, 280, 300), 80, perlin_material);
+
+    // Constant medium spheres
+    auto boundary1 = make_shared<Sphere>(point3(360, 150, 145), 70, dielectric_material);
+    auto sphere6 = make_shared<constant_medium>(boundary1, 0.2, color(0.2, 0.4, 0.9));
+    auto boundary2 = make_shared<Sphere>(point3(0, 0, 0), 5000, dielectric_material);
+    auto sphere7 = make_shared<constant_medium>(boundary2, 0.0001, color(1, 1, 1));
+
+    // Transformed spheres
+    hittable_list spheres;
+	shared_ptr<Hittable> transformed_spheres_bvh_tree;
+    for (int j = 0; j < 1000; j++) 
+    {
+        auto sphere = make_shared<Sphere>(point3::random(0, 165), 10, white_material);
+        spheres.add(sphere);
+    }
+
+    auto spheres_bvh_tree = make_shared<bvh_node>(spheres);
+    transformed_spheres_bvh_tree = make_shared<rotate>(spheres_bvh_tree, y_axis, -15);
+    transformed_spheres_bvh_tree = make_shared<translate>(transformed_spheres_bvh_tree, vec3(-100, 270, 395));
+    
+	// Add objects to the scene
+	scene.add(box_bvh_tree);
+	scene.add(quad1);
+	scene.add(sphere1);
+	scene.add(sphere2);
+	scene.add(sphere3);
+    scene.add(sphere4);
+	scene.add(sphere5);
+	scene.add(sphere6);
+	scene.add(sphere7);
+    scene.add(boundary1);
+	scene.add(transformed_spheres_bvh_tree);
+}
+
 int main()
 {
     // Create render objects
@@ -352,7 +511,7 @@ int main()
     ImageWriter image;
 
     // Choose rendering scene
-    switch (7)
+    switch (9)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -378,6 +537,12 @@ int main()
     case 7:  
         cornell_box(scene, camera, image);
         break;
+	case 8:
+		cornell_smoke(scene, camera, image);
+		break;
+	case 9:
+		book2_final_scene(scene, camera, image);
+		break;
     }
 
     // Boost scene render with BVH
