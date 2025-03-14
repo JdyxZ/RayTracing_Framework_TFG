@@ -86,7 +86,7 @@ private:
 class noise_texture : public Texture 
 {
 public:
-    noise_texture(double scale, int depth) : scale(scale), depth(depth) {}
+    noise_texture(double scale, int depth = 7) : scale(scale), depth(depth) {}
 
     color value(pair<double, double> texture_coordinates, const point3& p) const override
     {

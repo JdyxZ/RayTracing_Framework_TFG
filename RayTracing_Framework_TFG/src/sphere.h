@@ -67,8 +67,6 @@ public:
         sph_rec->determine_normal_direction(r.direction(), outward_normal);
         sph_rec->texture_coordinates = get_sphere_uv(outward_normal);
         sph_rec->type = type;
-
-
         
         // Polymorphic assignment
         rec = sph_rec;

@@ -24,7 +24,7 @@ public:
 
     bool intersect(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
     {
-        shared_ptr<hit_record> temp_rec;
+        shared_ptr<hit_record> temp_rec = make_shared<hit_record>();
         bool hit_anything = false;
         auto closest_object_so_far = ray_t.max;
 

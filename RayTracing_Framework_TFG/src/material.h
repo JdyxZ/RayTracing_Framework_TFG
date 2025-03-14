@@ -112,7 +112,6 @@ private:
     }
 };
 
-
 class diffuse_light : public Material 
 {
 public:
@@ -122,6 +121,23 @@ public:
     color emitted(pair<double, double> texture_coordinates, const point3& p) const override
     {
         return texture->value(texture_coordinates, p);
+    }
+
+private:
+    shared_ptr<Texture> texture;
+};
+
+class isotropic : public Material 
+{
+public:
+    isotropic(const color& albedo) : texture(make_shared<solid_color>(albedo)) {}
+    isotropic(shared_ptr<Texture> texture) : texture(texture) {}
+
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
+    {
+        scattered_ray = Ray(rec->p, random_unit_vector(), incoming_ray.time());
+        attenuation = texture->value(rec->texture_coordinates, rec->p);
+        return true;
     }
 
 private:
