@@ -67,13 +67,12 @@ inline int random_int(int min, int max)
 }
 
 // Common Headers
-#include "color.h"
 #include "interval.h"
 #include "ray.h"
 #include "vec3.h"
+#include "color.h"
 #include "quaternion.h"
 #include "matrix.h"
-
 
 // Axis definitions (right-handed coordinate system)
 const axis x_axis = vec3(1, 0, 0);

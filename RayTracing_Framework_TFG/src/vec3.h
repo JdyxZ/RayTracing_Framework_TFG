@@ -18,6 +18,35 @@ class vec3 {
     double operator[](int i) const { return e[i]; }
     double& operator[](int i) { return e[i]; }
 
+    vec3& operator+=(double t)
+    {
+        e[0] += t;
+        e[1] += t;
+        e[2] += t;
+        return *this;
+    }
+
+    vec3& operator-=(double t)
+    {
+        e[0] -= t;
+        e[1] -= t;
+        e[2] -= t;
+        return *this;
+    }
+
+    vec3& operator*=(double t)
+    {
+        e[0] *= t;
+        e[1] *= t;
+        e[2] *= t;
+        return *this;
+    }
+
+    vec3& operator/=(double t)
+    {
+        return *this *= 1 / t;
+    }
+
     vec3& operator+=(const vec3& v) 
     {
         e[0] += v[0];
@@ -34,11 +63,11 @@ class vec3 {
         return *this;
     }
 
-    vec3& operator*=(double t) 
+    vec3& operator*=(const vec3& v)
     {
-        e[0] *= t;
-        e[1] *= t;
-        e[2] *= t;
+        e[0] *= v[0];
+        e[1] *= v[1];
+        e[2] *= v[2];
         return *this;
     }
 
@@ -48,11 +77,6 @@ class vec3 {
         e[1] /= v[1];
         e[2] /= v[2];
         return *this;
-    }
-
-    vec3& operator/=(double t) 
-    {
-        return *this *= 1/t;
     }
 
     double length() const 
@@ -122,7 +146,7 @@ inline vec3 operator*(const vec3& v, double t)
     return t * v;
 }
 
-inline vec3 operator/=(const vec3& u, const vec3& v)
+inline vec3 operator/(const vec3& u, const vec3& v)
 {
     return vec3(u[0] / v[0], u[1] / v[1], u[2] / v[2]);
 }

@@ -1,11 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "interval.h"
-#include "vec3.h"
-#include <fstream>
-#include <tuple>
-
 // Colors
 const color RED(1.0, 0.0, 0.0);
 const color GREEN(0.0, 1.0, 0.0);

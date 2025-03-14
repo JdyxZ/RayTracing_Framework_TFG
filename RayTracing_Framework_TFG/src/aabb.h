@@ -20,6 +20,8 @@ public:
         x = interval(std::min(a[0], b[0]), std::max(a[0], b[0]));
         y = interval(std::min(a[1], b[1]), std::max(a[1], b[1]));
         z = interval(std::min(a[2], b[2]), std::max(a[2], b[2]));
+        
+        pad_to_minimums();
     }
 
     aabb(const point3& a, const point3& b, const point3& c)
@@ -27,6 +29,8 @@ public:
         x = interval(std::min({ a[0], b[0], c[0] }), std::max({ a[0], b[0], c[0] }));
         y = interval(std::min({ a[1], b[1], c[1] }), std::max({ a[1], b[1], c[1] }));
         z = interval(std::min({ a[2], b[2], c[2] }), std::max({ a[2], b[2], c[2] }));
+    
+        pad_to_minimums();
     }
 
     aabb(const aabb& box0, const aabb& box1) 
@@ -97,6 +101,22 @@ private:
         if (z.size() < delta) z = z.expand(delta);
     }
 };
+
+aabb operator+(const aabb& bbox, const vec3& offset) {
+    return aabb(bbox.x + offset.x(), bbox.y + offset.y(), bbox.z + offset.z());
+}
+
+aabb operator+(const vec3& offset, const aabb& bbox) {
+    return bbox + offset;
+}
+
+aabb operator*(const aabb& bbox, const vec3& offset) {
+    return aabb(bbox.x * offset.x(), bbox.y * offset.y(), bbox.z * offset.z());
+}
+
+aabb operator*(const vec3& offset, const aabb& bbox) {
+    return bbox * offset;
+}
 
 const aabb aabb::empty = aabb(interval::empty, interval::empty, interval::empty);
 const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);

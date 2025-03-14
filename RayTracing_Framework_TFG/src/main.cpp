@@ -25,6 +25,7 @@
 #include "box.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "hittable_transform.h"
 #include "camera.h"
 
 void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
@@ -323,8 +324,14 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
     
     // Boxes
-	auto box1 = make_shared<Box>(point3(130, 0, 65), point3(295, 165, 230), white);
-	auto box2 = make_shared<Box>(point3(265, 0, 295), point3(430, 330, 460), white);
+	shared_ptr<Hittable> box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white);
+    shared_ptr<Hittable> box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white);
+
+    // Transformations
+    box1 = make_shared<rotate>(box1, y_axis, -15.0);
+    box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+    box2 = make_shared<rotate>(box2, y_axis, 18.0);
+    box2 = make_shared<translate>(box2, vec3(130, 0, 65));
 
     // Add primitives
     scene.add(quad1);
