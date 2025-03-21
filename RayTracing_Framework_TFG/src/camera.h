@@ -20,7 +20,7 @@ public:
     point3 lookat = point3(0, 0, -1);   // Point camera is looking at
     vec3   world_up = vec3(0, 1, 0);    // Camera-relative "up" direction
 
-    void initialize(const ImageWriter& image)
+    void initialize(const Scene& scene, const ImageWriter& image)
     {
         // Determine viewport dimensions
         auto theta = degrees_to_radians(vertical_fov);
@@ -50,6 +50,10 @@ public:
         auto defocus_radius = std::tan(degrees_to_radians(defocus_angle / 2));
         defocus_disk_u = side * defocus_radius * focus_distance;
         defocus_disk_v = up * defocus_radius * focus_distance;
+
+		// Calculate the square root of samples per pixel and its inverse for stratified sampling
+        pixel_sample_sqrt = int(sqrt(scene.samples_per_pixel));
+        pixel_sample_sqrt_inv = 1.0 / pixel_sample_sqrt;
     }
 
     void render(Scene& scene, ImageWriter& image)
@@ -67,14 +71,17 @@ public:
 				// Final pixel color
                 color pixel_color(0, 0, 0);
                 
-                // Sample points for antialisasing
-                for (int sample = 0; sample < scene.samples_per_pixel; sample++) 
+                // Sample points with stratified sampling for antialisasing
+                for (int sample_row = 0; sample_row < pixel_sample_sqrt; sample_row++)
                 {
-                    // Get ray sample around pixel location
-                    Ray r = get_ray_sample(pixel_row, pixel_column);
+                    for (int sample_column = 0; sample_column < pixel_sample_sqrt; sample_column++)
+                    {
+                        // Get ray sample around pixel location
+                        Ray sample_ray = get_ray_sample(pixel_row, pixel_column, sample_row, sample_column);
 
-					// Get pixel color of the sample point that ray sample points to
-                    pixel_color += ray_color(r, scene.bounce_max_depth, scene);
+					    // Get pixel color of the sample point that ray sample points to
+                        pixel_color += ray_color(sample_ray, scene.bounce_max_depth, scene);
+                    }
                 }
 
                 // Avarage samples
@@ -104,17 +111,21 @@ public:
 private:
 
     // Internal variables
-    point3 pixel00_loc;         // Location of pixel 0, 0
-    vec3   pixel_delta_u;       // Offset to pixel to the right
-    vec3   pixel_delta_v;       // Offset to pixel below
-    vec3   side, up, view;      // Camera frame basis vectors
-    vec3   defocus_disk_u;      // Defocus disk horizontal radius
-    vec3   defocus_disk_v;      // Defocus disk vertical radius    
+    point3 pixel00_loc;             // Location of pixel 0, 0
+    vec3   pixel_delta_u;           // Offset to pixel to the right
+    vec3   pixel_delta_v;           // Offset to pixel below
+    vec3   side, up, view;          // Camera frame basis vectors
+    vec3   defocus_disk_u;          // Defocus disk horizontal radius
+    vec3   defocus_disk_v;          // Defocus disk vertical radius    
+	int    pixel_sample_sqrt;	    // Square root of samples per pixel
+	double pixel_sample_sqrt_inv;   // Inverse of square root of samples per pixel
 
-    // Construct a camera ray originating from the defocus disk and directed at randomly sampled point around the pixel location pixel_row, pixel_column.
-    Ray get_ray_sample(int pixel_row, int pixel_column) const
+    // Construct a camera ray originating from the defocus disk and directed at randomly 
+    // sampled point around the pixel location pixel_row, pixel_column for 
+    // stratified sample square sample_row, sample_column
+    Ray get_ray_sample(int pixel_row, int pixel_column, int sample_row, int sample_column) const
     {
-        auto offset = sample_square();
+        auto offset = sample_square_stratified(sample_row, sample_column, pixel_sample_sqrt_inv);
 
         auto pixel_sample = pixel00_loc
             + ((pixel_row + offset.y()) * pixel_delta_v)
@@ -128,7 +139,7 @@ private:
         return Ray(ray_origin, ray_direction, ray_time);
     }
 
-    color ray_color(const Ray& r, int depth, const Scene& scene) const
+    color ray_color(const Ray& sample_ray, int depth, const Scene& scene) const
     {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
@@ -141,23 +152,27 @@ private:
         interval ray_t(scene.min_hit_distance, infinity);
 
         // Sky hit
-        if (!scene.intersect(r, ray_t, rec))
-            return scene.sky_blend ? sky_blend(r) : scene.background;
+        if (!scene.intersect(sample_ray, ray_t, rec))
+            return scene.sky_blend ? sky_blend(sample_ray) : scene.background;
 
         // Hit object type
         PRIMITIVE hit_object_type = rec->type;
 
-        // If the ray hits an object, calculate the color of the hit point
-        Ray scattered;
-        color attenuation;
-
         // Material intersection point colors
         color color_from_scatter;
-        color color_from_emission = rec->material->emitted(rec->texture_coordinates, rec->p);
+        color color_from_emission = rec->material->emitted(sample_ray, rec);
 
+		// Get scene objects with specific PDFs
+        auto hittables_with_pdf = scene.hittables_with_pdf;
+
+        // Scattering record for pdf and attenuation management
+        scatter_record srec;        
+
+        // If the ray hits an object, calculate the color of the hit point
         switch (hit_object_type)
         {
         case TRIANGLE:
+        {
             /*
             std::shared_ptr<triangle_hit_record> tri_rec = std::dynamic_pointer_cast<triangle_hit_record>(rec);
 
@@ -174,18 +189,57 @@ private:
 
             return 0.5 * (tri_rec->normal + WHITE);
             */
+        }
         case QUAD:
 
         case SPHERE:
-            if (!rec->material->scatter(r, rec, attenuation, scattered))
+        {
+            // If the ray does not scatter, it is emissive
+            if (!rec->material->scatter(sample_ray, rec, srec))
                 return color_from_emission;
-            
-            color_from_scatter = attenuation * ray_color(scattered, depth - 1, scene);
 
+            // Deal with specular materials apart from the rest (PDF skip)
+            if (srec.is_specular)
+                return srec.attenuation * ray_color(srec.specular_ray, depth - 1, scene);
+
+            // Create the sampling PDF
+            shared_ptr<PDF> sampling_pdf;
+
+            if (hittables_with_pdf.empty())
+            {
+                // Material associated samplig PDF
+                sampling_pdf = srec.pdf;
+            }
+            else
+            {
+                // Generate mixture of PDFs
+                auto _hittables_pdf = make_shared<hittables_pdf>(hittables_with_pdf, rec->p);
+                auto _mixture_pdf = make_shared<mixture_pdf>(_hittables_pdf, srec.pdf);
+                sampling_pdf = _mixture_pdf;
+            }
+
+            // Generate random scatter ray using the sampling PDF
+            vec3 surface_hit_point = rec->p;
+            vec3 scatter_direction = sampling_pdf->generate();
+            Ray scattered = Ray(surface_hit_point, scatter_direction, sample_ray.time());
+
+            // Get the weight of the generated scatter ray sample
+            auto sampling_pdf_value = sampling_pdf->value(scatter_direction);
+
+            // Get the material's associated scattering PDF
+            auto scattering_pdf_value = rec->material->scattering_pdf_value(sample_ray, rec, scattered);
+
+            // Ray bounce
+            color sample_color = ray_color(scattered, depth - 1, scene);
+
+            // Bidirectional Reflectance Distribution Function (BRDF)
+            color_from_scatter = (srec.attenuation * scattering_pdf_value * sample_color) / sampling_pdf_value;
+
+            // Combine scatter and emission colors
             return color_from_emission + color_from_scatter;
-
+        }
         default: // Unknown hit
-            return scene.sky_blend ? sky_blend(r) : scene.background;
+            return scene.sky_blend ? sky_blend(sample_ray) : scene.background;
         }
     }
 
@@ -220,6 +274,8 @@ private:
 
         return c;
     }
+
+    
 };
 
 #endif

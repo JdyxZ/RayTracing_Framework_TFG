@@ -1,15 +1,12 @@
 /*
+
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
-#include "scene.h"
-#include "triangle.h"
-#include <memory>
-
-bool load_obj(const string& filename, scene& scene, std::shared_ptr<material> mat) 
+bool load_obj(const string& filename) 
 {
     tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
+    vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     string warn, err;
     string aux1, aux2;
@@ -40,5 +37,5 @@ bool load_obj(const string& filename, scene& scene, std::shared_ptr<material> ma
 }
 
 #endif
-*/
 
+*/

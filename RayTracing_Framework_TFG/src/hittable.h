@@ -83,10 +83,23 @@ public:
 
     virtual aabb bounding_box() const = 0;
 
-    virtual const PRIMITIVE get_type() const { return type; }
+    const PRIMITIVE get_type() const { return type; }
+
+	const bool has_pdf() const { return pdf; }
+
+    virtual double pdf_value(const point3& hit_point, const vec3& scattering_direction) const
+    {
+        return 0.0;
+    }
+
+    virtual vec3 random_scattering_ray(const point3& hit_point) const
+    {
+        return vec3(1, 0, 0);
+    }
 
 protected:
     PRIMITIVE type = NOT_SPECIFIED;
+    bool pdf = false;
 };
 
 #endif

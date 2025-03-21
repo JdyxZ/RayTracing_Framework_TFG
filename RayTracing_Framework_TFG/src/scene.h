@@ -19,9 +19,8 @@ public:
     // Rendering benchmark
     Benchmark chrono;
 
+    // Constructors
     Scene() {}
-    Scene(shared_ptr<Hittable> object) { add(object); }
-	Scene(shared_ptr<hittable_list> list) { add(list); }
 };
 
 #endif

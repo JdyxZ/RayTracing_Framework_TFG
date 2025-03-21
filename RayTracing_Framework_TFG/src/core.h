@@ -105,6 +105,16 @@ vec3 sample_square()
     return vec3(random_double() - 0.5, random_double() - 0.5, 0);
 }
 
+// Returns the vector to a random point in the square sub-pixel specified by grid
+// indices sample_row and sample_column, for an idealized unit square pixel [-.5,-.5] to [+.5,+.5].
+vec3 sample_square_stratified(int sample_row, int sample_column, double pixel_sample_sqrt_inv)
+{
+    auto px = ((sample_row + random_double()) * pixel_sample_sqrt_inv) - 0.5;
+    auto py = ((sample_column + random_double()) * pixel_sample_sqrt_inv) - 0.5;
+
+    return vec3(px, py, 0);
+}
+
 // Returns a random point in the unit disk.
 inline vec3 random_in_unit_disk()
 {
@@ -146,6 +156,19 @@ inline vec3 random_on_hemisphere(const vec3& normal)
 
     // If the vector is in the same hemisphere than the normal return it, otherwise return its opposite.
     return (dot(unit_vector_on_sphere, normal) > 0.0) ? unit_vector_on_sphere : -unit_vector_on_sphere;
+}
+
+inline vec3 random_cosine_hemisphere_direction() 
+{
+    auto r1 = random_double();
+    auto r2 = random_double();
+
+    auto phi = 2 * pi * r1;
+    auto x = std::cos(phi) * std::sqrt(r2);
+    auto y = std::sin(phi) * std::sqrt(r2);
+    auto z = std::sqrt(1 - r2);
+
+    return vec3(x, y, z);
 }
 
 inline vec3 reflect(const vec3& v, const vec3& n)

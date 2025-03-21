@@ -4,23 +4,40 @@
 class hittable_list
 {
 public:
-    // Primitives
-    vector<shared_ptr<Hittable>> objects;
+
+    vector<shared_ptr<Hittable>> objects;     // Primitives 
+    vector<shared_ptr<Hittable>> hittables_with_pdf;
+
+	hittable_list() {}
 
     void add(shared_ptr<Hittable> object)
     {
         objects.push_back(object);
+
+		if (object->has_pdf())
+			hittables_with_pdf.push_back(object);
     }
 
     void add(shared_ptr<hittable_list> list)
     {
         objects.insert(objects.end(), list->objects.begin(), list->objects.end());
+
     }
 
     void clear()
     {
         objects.clear();
     }
+
+	size_t size() const
+	{
+		return objects.size();
+	}
+
+	shared_ptr<Hittable> operator[](int i) const
+	{
+		return objects[i];
+	}
 
     bool intersect(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const
     {
@@ -39,7 +56,7 @@ public:
         }
 
         return hit_anything;
-    }
+    }    
 };
 
 #endif

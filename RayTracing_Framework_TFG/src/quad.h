@@ -7,14 +7,16 @@ class Quad : public Hittable
 {
 public:
 
-    Quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<Material> material) : Q(Q), u(u), v(v), material(material)
+    Quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<Material> material, bool pdf = false) : Q(Q), u(u), v(v), material(material)
     {
         type = QUAD;
+        this->pdf = pdf;
 
         auto n = cross(u, v);
         normal = unit_vector(n);
         D = dot(normal, Q);
         w = n / dot(n, n);
+        area = n.length();
 
         set_bounding_box();
     }
@@ -70,10 +72,30 @@ public:
         return true;
     }
 
+    double pdf_value(const point3& hit_point, const vec3& scattering_direction) const override 
+    {
+        shared_ptr<hit_record> rec;
+
+        if (!this->hit(Ray(hit_point, scattering_direction), interval(0.001, infinity), rec))
+            return 0;
+
+        auto distance_squared = rec->t * rec->t * scattering_direction.length_squared(); // light_hit_point - origin = t * direction
+		auto cosine = fabs(dot(scattering_direction, rec->normal) / scattering_direction.length()); // scattering direction is not normalized
+
+        return distance_squared / (cosine * area);
+    }
+
+    vec3 random_scattering_ray(const point3& hit_point) const override 
+    {
+        auto p = Q + (random_double() * u) + (random_double() * v);
+        return p - hit_point;
+    }
+
 private:
     point3 Q;
     double D;
     vec3 u, v, w, normal;
+    double area;
     shared_ptr<Material> material;
     aabb bbox;
 };

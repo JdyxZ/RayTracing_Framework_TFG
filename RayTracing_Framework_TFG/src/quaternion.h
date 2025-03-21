@@ -80,7 +80,6 @@ Quaternion Quaternion::operator*(const Quaternion& q) const
 }
 
 // Useful functions
-
 Quaternion Quaternion::conjugate() const
 {
     return Quaternion(w, -i, -j, -k);
@@ -132,7 +131,7 @@ vec3 rotate3D(const Quaternion& q, const vec3& v, const Quaternion& q_inv)
     Quaternion q_v(0, v.x(), v.y(), v.z());
     Quaternion rotated = q * q_v * q_inv;
     return vec3(rotated.i, rotated.j, rotated.k);
-}
+} 
 
 // Quaternion SLERP (Smooth Rotation Interpolation)
 Quaternion slerp(const Quaternion& q1, const Quaternion& q2, double t)

@@ -3,20 +3,35 @@
 
 #include "hittable.h"
 
+
+struct scatter_record
+{
+public:
+	bool is_specular;
+	Ray specular_ray;
+	shared_ptr<PDF> pdf;
+	color attenuation;
+};
+
 class Material 
 {
 public:
     virtual ~Material() = default;
 
-    virtual bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& outgoing_ray) const 
+    virtual bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
     {
         return false;
     }
 
-    virtual color emitted(pair<double, double> texture_coordinates, const point3& p) const
+    virtual color emitted(const Ray& incoming_ray, const shared_ptr<hit_record>& rec) const
     {
         return color(0, 0, 0);
     }
+
+	virtual double scattering_pdf_value(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, const Ray& scattered_ray) const
+	{
+		return 0;
+	}
 };
 
 class lambertian : public Material 
@@ -25,20 +40,19 @@ public:
     lambertian(const color& albedo) : texture(make_shared<solid_color>(albedo)) {}
     lambertian(shared_ptr<Texture> texture) : texture(texture) {}
 
-    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
-		// Generate random scatter direction
-        auto scatter_direction = rec->normal + random_unit_vector();
-
-        // Intercept degenerate scatter direction
-        if (scatter_direction.near_zero())
-            scatter_direction = rec->normal;
-
-		// Create scattered ray
-        scattered_ray = Ray(rec->p, scatter_direction, incoming_ray.time());
-        attenuation = texture->value(rec->texture_coordinates, rec->p);
-
+        // auto scatter_direction = rec->normal + random_unit_vector();
+        srec.is_specular = false;
+        srec.pdf = make_shared<cosine_hemisphere_pdf>(rec->normal);
+        srec.attenuation = texture->value(rec->texture_coordinates, rec->p);
         return true;
+    }
+
+    double scattering_pdf_value(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, const Ray& scattered_ray) const override
+    {
+        auto cos_theta = dot(rec->normal, unit_vector(scattered_ray.direction()));
+        return cos_theta < 0 ? 0 : cos_theta / pi;
     }
 
 private:
@@ -50,18 +64,25 @@ class metal : public Material
 public:
     metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
 
-    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& reflected_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
 		// Reflect the incoming ray
         vec3 reflected = reflect(incoming_ray.direction(), rec->normal);
         reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
 
 		// Create reflected ray
-        reflected_ray = Ray(rec->p, reflected, incoming_ray.time());
-        attenuation = albedo;
+        auto reflected_ray = Ray(rec->p, reflected, incoming_ray.time());
+
+        // Save data into scatter record
+        srec.is_specular = true;
+        srec.pdf = nullptr;
+        srec.attenuation = albedo;
+        srec.specular_ray = reflected_ray;
 
 		// Absorb the ray if it's reflected into the surface
-        return dot(reflected_ray.direction(), rec->normal) > 0;
+        // return dot(reflected_ray.direction(), rec->normal) > 0;
+
+        return true;
     }
 
 private:
@@ -73,10 +94,10 @@ class dielectric : public Material {
 public:
     dielectric(double refraction_index) : refraction_index(refraction_index) {}
 
-    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
         // Attenuation is always 1 (the glass surface absorbs nothing)
-        attenuation = color(1.0, 1.0, 1.0);
+        auto attenuation = color(1.0, 1.0, 1.0);
 
         // Check refractive index order
         double ri = rec->front_face ? (1.0 / refraction_index) : refraction_index;
@@ -96,7 +117,14 @@ public:
 		vec3 scattering_direction = cannot_refract || reflect_prob > random_double() ? reflect(unit_direction, rec->normal) : refract(unit_direction, rec->normal, cos_theta, ri);
 
 		// Create scattered ray
-        scattered_ray = Ray(rec->p, scattering_direction, incoming_ray.time());
+        auto scattered_ray = Ray(rec->p, scattering_direction, incoming_ray.time());
+
+		// Save data into scatter record
+        srec.is_specular = true;
+        srec.pdf = nullptr;
+        srec.attenuation = attenuation;
+        srec.specular_ray = scattered_ray;
+
         return true;
     }
 
@@ -118,9 +146,12 @@ public:
     diffuse_light(shared_ptr<Texture> texture) : texture(texture) {}
     diffuse_light(const color& emit) : texture(make_shared<solid_color>(emit)) {}
 
-    color emitted(pair<double, double> texture_coordinates, const point3& p) const override
+    color emitted(const Ray& incoming_ray, const shared_ptr<hit_record>& rec) const override
     {
-        return texture->value(texture_coordinates, p);
+        if (!rec->front_face)
+            return color(0, 0, 0);
+
+        return texture->value(rec->texture_coordinates, rec->p);
     }
 
 private:
@@ -133,11 +164,17 @@ public:
     isotropic(const color& albedo) : texture(make_shared<solid_color>(albedo)) {}
     isotropic(shared_ptr<Texture> texture) : texture(texture) {}
 
-    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, color& attenuation, Ray& scattered_ray) const override
+    bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
-        scattered_ray = Ray(rec->p, random_unit_vector(), incoming_ray.time());
-        attenuation = texture->value(rec->texture_coordinates, rec->p);
+        srec.is_specular = false;
+        srec.pdf = make_shared<uniform_sphere_pdf>();
+        srec.attenuation = texture->value(rec->texture_coordinates, rec->p);
         return true;
+    }
+
+    double scattering_pdf_value(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, const Ray& scattered_ray) const override
+    {
+        return 1 / (4 * pi);
     }
 
 private:

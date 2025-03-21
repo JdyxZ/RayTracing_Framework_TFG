@@ -20,14 +20,18 @@
 #include "image_reader.h"
 #include "perlin.h"
 #include "texture.h"
+#include "onb.h"
+#include "pdf.h"
 #include "material.h"
 #include "quad.h"
 #include "box.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "mesh.h"
 #include "constant_medium.h"
 #include "hittable_transform.h"
 #include "camera.h"
+#include "obj_loader.h"
 
 void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
 {
@@ -308,18 +312,20 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.sky_blend = false;
     scene.background = BLACK;
     scene.bounce_max_depth = 50;
-    scene.samples_per_pixel = 200;
+    scene.samples_per_pixel = 100;
 
     // Materials
     auto red = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
     auto light = make_shared<diffuse_light>(color(15, 15, 15));
+    auto aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
+    auto glass = make_shared<dielectric>(1.5);
 
     // Quads
     auto quad1 = make_shared<Quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green);
     auto quad2 = make_shared<Quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red);
-    auto quad3 = make_shared<Quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light);
+    auto quad3 = make_shared<Quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light, true);
     auto quad4 = make_shared<Quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white);
     auto quad5 = make_shared<Quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white);
     auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
@@ -334,6 +340,9 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     box2 = make_shared<rotate>(box2, y_axis, 18.0);
     box2 = make_shared<translate>(box2, vec3(130, 0, 65));
 
+    // Glass Sphere
+    auto sphere1 = make_shared<Sphere>(point3(190, 90, 190), 90, glass, true);
+
     // Add primitives
     scene.add(quad1);
     scene.add(quad2);
@@ -342,7 +351,8 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad5);
     scene.add(quad6);
     scene.add(box1);
-    scene.add(box2);
+    // scene.add(box2);
+    scene.add(sphere1);
 }
 
 void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
@@ -511,7 +521,7 @@ int main()
     ImageWriter image;
 
     // Choose rendering scene
-    switch (9)
+    switch (7)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -554,7 +564,7 @@ int main()
     image.initialize();
 
     // Initialize the camera
-    camera.initialize(image);
+    camera.initialize(scene, image);
 
     // Render scene
     camera.render(scene, image);

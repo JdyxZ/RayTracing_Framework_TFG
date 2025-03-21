@@ -25,7 +25,14 @@ public:
 
         AB = B.position - A.position;
         AC = C.position - A.position;
-		N = cross(AB, AC).normalize();
+
+		auto normal = cross(AB, AC);
+		auto normal_length = normal.length();
+		area = 0.5 * normal_length; // Same reasoning as in the Quad class
+		N = normal / normal_length; // Normalized normal
+
+        // if (normal.length() < kEpsilon)
+            // throw std::runtime_error("Triangle vertices are colinear");
         
         bbox = aabb(A.position, B.position, C.position);
     }
@@ -100,8 +107,41 @@ public:
         return bbox; 
     }
 
+    double pdf_value(const point3& hit_point, const vec3& scattering_direction) const override
+    {
+        shared_ptr<hit_record> rec;
+
+        if (!this->hit(Ray(hit_point, scattering_direction), interval(0.001, infinity), rec))
+            return 0;
+
+        auto distance_squared = rec->t * rec->t * scattering_direction.length_squared(); // light_hit_point - origin = t * direction
+        auto cosine = fabs(dot(scattering_direction, rec->normal) / scattering_direction.length()); // scattering direction is not normalized
+
+        return distance_squared / (cosine * area);
+    }
+
+    // https://stackoverflow.com/questions/19654251/random-point-inside-triangle-inside-java
+    vec3 random_scattering_ray(const point3& hit_point) const override
+    {
+        // Generate random barycentric coordinates
+        auto r1 = random_double();
+        auto r2 = random_double();
+
+        // Convert to barycentric coordinates
+        auto sqrt_r1 = sqrt(r1);
+        double alpha = 1 - sqrt_r1;
+        double beta = r2 * sqrt_r1;
+        double gamma = 1 - alpha - beta;
+
+        // Compute the random point on the triangle
+        auto p = alpha * A.position + beta * B.position + gamma * C.position;
+
+        return p - hit_point;
+    }
+
 private:
     vec3 AB, AC, N;
+    double area;
     shared_ptr<Material> material;
     aabb bbox;
 

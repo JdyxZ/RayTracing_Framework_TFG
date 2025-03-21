@@ -6,9 +6,10 @@ class Sphere : public Hittable
 public:
 
     // Stationary sphere
-    Sphere(const point3& static_center, const double radius, shared_ptr<Material> material) : radius(std::fmax(0, radius)), material(material)
+    Sphere(const point3& static_center, const double radius, shared_ptr<Material> material, bool pdf = false) : radius(std::fmax(0, radius)), material(material)
     {
         type = SPHERE;
+		pdf = pdf;
 
         vec3 origin = static_center;
         vec3 direction = vec3(0);
@@ -79,6 +80,30 @@ public:
         return bbox; 
     }
 
+    double pdf_value(const point3& origin, const vec3& direction) const override 
+    {
+        // This method only works for stationary spheres.
+
+        shared_ptr<hit_record> rec;
+
+        if (!this->hit(Ray(origin, direction), interval(0.001, infinity), rec))
+            return 0;
+
+        auto dist_squared = (center.at(0) - origin).length_squared();
+        auto cos_theta_max = std::sqrt(1 - radius * radius / dist_squared);
+        auto solid_angle = 2 * pi * (1 - cos_theta_max);
+
+        return  1 / solid_angle;
+    }
+
+    vec3 random_scattering_ray(const point3& origin) const override 
+    {
+        vec3 direction = center.at(0) - origin;
+        auto distance_squared = direction.length_squared();
+        ONB uvw(direction);
+        return uvw.transform(sphere_front_face_random(radius, distance_squared));
+    }
+
 private:
     motion_vector center;
     double radius;
@@ -95,6 +120,20 @@ private:
         auto phi = std::atan2(-p.z(), p.x()) + pi;
 
         return make_pair(phi / (2 * pi), theta / pi);
+    }
+
+
+    static vec3 sphere_front_face_random(double radius, double distance_squared) 
+    {
+        auto r1 = random_double();
+        auto r2 = random_double();
+        auto phi = 2 * pi * r1;
+
+        auto z = 1 + r2 * (std::sqrt(1 - radius * radius / distance_squared) - 1);
+        auto x = std::cos(phi) * std::sqrt(1 - z * z);
+        auto y = std::sin(phi) * std::sqrt(1 - z * z);
+
+        return vec3(x, y, z);
     }
 };
 
