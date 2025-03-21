@@ -1,14 +1,16 @@
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
-shared_ptr<Mesh> load_obj(const string& obj_path)
+const string models_path = std::filesystem::current_path().string() + "\\models\\";
+
+shared_ptr<Mesh> load_obj(const string& filename)
 {
 	// Create tiny obj reader object
     tinyobj::ObjReaderConfig reader_config;
 	tinyobj::ObjReader reader;
 
 	// Define pahts
-    reader_config.mtl_search_path = "./"; // Path to material files
+    auto obj_path = models_path + filename;
     auto obj_path_fs = std::filesystem::path(obj_path);
 
     // Try to load obj file data into reader object
@@ -37,7 +39,7 @@ shared_ptr<Mesh> load_obj(const string& obj_path)
     {
         // Create new shape
         shared_ptr<Surface> surface;
-        shared_ptr<hittable_list> triangles;
+        shared_ptr<hittable_list> triangles = make_shared<hittable_list>();
         shared_ptr<Material> material;
 
         if (!materials.empty())
@@ -55,18 +57,11 @@ shared_ptr<Mesh> load_obj(const string& obj_path)
 
                 material = make_shared<lambertian>(albedo);
 			}
-            // Else, load texture
+            // Else, load diffuse texture
             else
             {
-                /*
                 auto texture = make_shared<image_texture>(obj_path_fs.parent_path().string() + "/" + materials[material_id].diffuse_texname);
                 material = make_shared<lambertian>(texture);
-                */
-                const color albedo = color(static_cast<double>(materials[material_id].diffuse[0]),
-                    static_cast<double>(materials[material_id].diffuse[1]),
-                    static_cast<double>(materials[material_id].diffuse[2]));
-
-                material = make_shared<lambertian>(albedo);
             }
         }
 

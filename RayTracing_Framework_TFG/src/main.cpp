@@ -345,6 +345,9 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     // Glass Sphere
     auto sphere1 = make_shared<Sphere>(point3(190, 90, 190), 90, glass, true);
 
+    // Mesh
+    auto mesh = load_obj("cube\\cube.obj");
+
     // Add primitives
     scene.add(quad1);
     scene.add(quad2);
@@ -352,9 +355,10 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad4);
     scene.add(quad5);
     scene.add(quad6);
-    scene.add(box1);
+    // scene.add(box1);
     // scene.add(box2);
     scene.add(sphere1);
+    if (mesh) scene.add(mesh);
 }
 
 void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
@@ -515,6 +519,30 @@ void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
 	scene.add(transformed_spheres_bvh_tree);
 }
 
+void obj_test(Scene& scene, Camera& camera, ImageWriter& image)
+{
+    // Image settings
+    image.aspect_ratio = 1.0;
+    image.width = 600;
+
+    // Camera settings
+    camera.vertical_fov = 20;
+    camera.lookfrom = point3(13, 2, -3);
+    camera.lookat = point3(0, 0, 0);
+    camera.defocus_angle = 0.6;
+
+    // Scene settings
+    scene.sky_blend = true;
+    scene.background = SKY_BLUE;
+    scene.bounce_max_depth = 50;
+    scene.samples_per_pixel = 100;
+
+    // Mesh
+    auto mesh = load_obj("cube\\cube.obj");
+
+    if (mesh) scene.add(mesh);
+}
+
 int main()
 {
     // Create render objects
@@ -523,7 +551,7 @@ int main()
     ImageWriter image;
 
     // Choose rendering scene
-    switch (7)
+    switch (10)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -555,6 +583,9 @@ int main()
 	case 9:
 		book2_final_scene(scene, camera, image);
 		break;
+    case 10:
+        obj_test(scene, camera, image);
+        break;
     }
 
     // Boost scene render with BVH

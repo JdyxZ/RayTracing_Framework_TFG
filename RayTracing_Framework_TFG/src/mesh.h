@@ -6,6 +6,7 @@ class Mesh : public Hittable
 public:
 	Mesh() 
 	{
+		surfaces = make_shared<hittable_list>();
 		bbox = aabb::empty;
 	}
 

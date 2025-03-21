@@ -54,6 +54,7 @@ class image_texture : public Texture
 {
 public:
     image_texture(const char* filename) : image(filename) {}
+    image_texture(string filename) : image(filename.c_str()) {}
 
     color value(pair<double, double> texture_coordinates, const point3& p) const override
     {
