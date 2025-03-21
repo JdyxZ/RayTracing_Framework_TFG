@@ -3,7 +3,6 @@
 
 #include "hittable.h"
 
-
 struct scatter_record
 {
 public:

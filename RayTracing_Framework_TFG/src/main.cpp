@@ -3,6 +3,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 #define __STDC_LIB_EXT1__
+#define TINYOBJLOADER_IMPLEMENTATION
 
 // External libraries
 #include "../external/stb_image.h"
@@ -27,6 +28,7 @@
 #include "box.h"
 #include "sphere.h"
 #include "triangle.h"
+#include "surface.h"
 #include "mesh.h"
 #include "constant_medium.h"
 #include "hittable_transform.h"
