@@ -16,20 +16,17 @@ public:
         // width() and height() will return 0.
 
         auto filename = std::string(image_filename);
-        auto cwd = std::filesystem::current_path().string();
 
         // Hunt for the image file in some likely locations.
-        if (load(cwd + "/images/" + filename)) return;
+        string prefix = "";
+        for (int i = 0; i < 7; ++i) 
+        {
+            if (load(prefix + textures_directory + "\\" + filename)) return;
+            prefix += "..\\";
+        }
         if (load(filename)) return;
-        if (load("images/" + filename)) return;
-        if (load("../images/" + filename)) return;
-        if (load("../../images/" + filename)) return;
-        if (load("../../../images/" + filename)) return;
-        if (load("../../../../images/" + filename)) return;
-        if (load("../../../../../images/" + filename)) return;
-        if (load("../../../../../../images/" + filename)) return;
 
-        std::cerr << "ERROR: Could not load image file '" << image_filename << "'.\n";
+        Logger::error("ImageReader", "Could not load image file: " + string(image_filename));
     }
 
     ~ImageReader()

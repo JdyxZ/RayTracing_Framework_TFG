@@ -13,6 +13,7 @@ enum PRIMITIVE
 	TRIANGLE,
     QUAD,
     BOX,
+    MESH,
     BVH_NODE,
 	NOT_SPECIFIED
 };

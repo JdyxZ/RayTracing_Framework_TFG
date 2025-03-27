@@ -20,6 +20,14 @@ public:
     point3 lookat = point3(0, 0, -1);   // Point camera is looking at
     vec3   world_up = vec3(0, 1, 0);    // Camera-relative "up" direction
 
+    // Benchmark
+    int primary_rays = 0;
+    int reflected_rays = 0;
+    int refracted_rays = 0;
+    int rays_casted = 0;
+    int average_rays_per_second = 0;
+    Chrono render_chrono = Chrono();
+
     void initialize(const Scene& scene, const ImageWriter& image)
     {
         // Determine viewport dimensions
@@ -54,12 +62,22 @@ public:
 		// Calculate the square root of samples per pixel and its inverse for stratified sampling
         pixel_sample_sqrt = int(sqrt(scene.samples_per_pixel));
         pixel_sample_sqrt_inv = 1.0 / pixel_sample_sqrt;
+
+        // Log info
+        Logger::info("CAMERA", "Camera settings succesfully initialized");
     }
 
     void render(Scene& scene, ImageWriter& image)
     {
-        // Start benchmark chrono
-		scene.chrono.start();
+        // Log info
+        string info = std::format("Rendering started. Using {} samples per pixel, resolution {}x{}, and {} bounces per ray.", scene.samples_per_pixel, image.width, image.height, scene.bounce_max_depth);
+        Logger::info("CAMERA", info);
+
+        // Calculate primary rays to cast
+        primary_rays = image.height * image.width * pixel_sample_sqrt * pixel_sample_sqrt;
+
+        // Start render chrono
+        render_chrono.start();
 
         for (int pixel_row = 0; pixel_row < image.height; pixel_row++)
         {
@@ -101,11 +119,12 @@ public:
         // Progress info end line
         std::cout << std::endl;
 
-        // End benchmark chrono
-        scene.chrono.end();
+        // End render chrono
+        render_chrono.end();
 
-        // Save image with desired format
-        image.save();
+        // Benchmark rays
+        rays_casted = primary_rays + reflected_rays + refracted_rays;
+        average_rays_per_second = rays_casted / render_chrono.elapsed_miliseconds();
     }
 
 private:
@@ -139,7 +158,7 @@ private:
         return Ray(ray_origin, ray_direction, ray_time);
     }
 
-    color ray_color(const Ray& sample_ray, int depth, const Scene& scene) const
+    color ray_color(const Ray& sample_ray, int depth, const Scene& scene)
     {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
@@ -200,7 +219,19 @@ private:
 
             // Deal with specular materials apart from the rest (PDF skip)
             if (srec.is_specular)
+            {
+                if (depth - 1 > 0)
+                {
+                    switch (srec.scatter_type) 
+                    {
+                    case REFLECT: reflected_rays++; break;
+                    case REFRACT: refracted_rays++; break;
+                    }
+                }
+                    
                 return srec.attenuation * ray_color(srec.specular_ray, depth - 1, scene);
+            }
+                
 
             // Create the sampling PDF
             shared_ptr<PDF> sampling_pdf;
@@ -230,6 +261,15 @@ private:
             auto scattering_pdf_value = rec->material->scattering_pdf_value(sample_ray, rec, scattered);
 
             // Ray bounce
+            if (depth - 1 > 0)
+            {
+                switch (srec.scatter_type)
+                {
+                case REFLECT: reflected_rays++; break;
+                case REFRACT: refracted_rays++; break;
+                }
+            }
+
             color sample_color = ray_color(scattered, depth - 1, scene);
 
             // Bidirectional Reflectance Distribution Function (BRDF)

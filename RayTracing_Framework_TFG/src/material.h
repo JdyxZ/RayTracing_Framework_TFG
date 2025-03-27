@@ -3,6 +3,22 @@
 
 #include "hittable.h"
 
+enum SCATTER_TYPE
+{
+    REFLECT,
+    REFRACT
+};
+
+enum MATERIAL_TYPE
+{
+    LAMBERTIAN,
+    METAL,
+    DIELECTRIC,
+    DIFFUSE_LIGHT,
+    ISOTROPIC,
+    NONE
+};
+
 struct scatter_record
 {
 public:
@@ -10,11 +26,13 @@ public:
 	Ray specular_ray;
 	shared_ptr<PDF> pdf;
 	color attenuation;
+    SCATTER_TYPE scatter_type;
 };
 
 class Material 
 {
 public:
+
     virtual ~Material() = default;
 
     virtual bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
@@ -31,13 +49,22 @@ public:
 	{
 		return 0;
 	}
+
+    const MATERIAL_TYPE get_type() const
+    {
+        return type;
+    }
+
+protected:
+
+    MATERIAL_TYPE type = NONE;
 };
 
 class lambertian : public Material 
 {
 public:
-    lambertian(const color& albedo) : texture(make_shared<solid_color>(albedo)) {}
-    lambertian(shared_ptr<Texture> texture) : texture(texture) {}
+    lambertian(const color& albedo) : texture(make_shared<solid_color>(albedo)) { type = LAMBERTIAN; }
+    lambertian(shared_ptr<Texture> texture) : texture(texture) { type = LAMBERTIAN; }
 
     bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
@@ -45,6 +72,7 @@ public:
         srec.is_specular = false;
         srec.pdf = make_shared<cosine_hemisphere_pdf>(rec->normal);
         srec.attenuation = texture->value(rec->texture_coordinates, rec->p);
+        srec.scatter_type = REFLECT;
         return true;
     }
 
@@ -61,7 +89,7 @@ private:
 class metal : public Material 
 {
 public:
-    metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) {}
+    metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) { type = METAL; }
 
     bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
@@ -77,6 +105,7 @@ public:
         srec.pdf = nullptr;
         srec.attenuation = albedo;
         srec.specular_ray = reflected_ray;
+        srec.scatter_type = REFLECT;
 
 		// Absorb the ray if it's reflected into the surface
         // return dot(reflected_ray.direction(), rec->normal) > 0;
@@ -91,7 +120,7 @@ private:
 
 class dielectric : public Material {
 public:
-    dielectric(double refraction_index) : refraction_index(refraction_index) {}
+    dielectric(double refraction_index) : refraction_index(refraction_index) { type = DIELECTRIC; }
 
     bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
@@ -113,7 +142,17 @@ public:
 		double reflect_prob = reflectance(cos_theta, ri);
 
 		// Check if the ray should reflect or refract
-		vec3 scattering_direction = cannot_refract || reflect_prob > random_double() ? reflect(unit_direction, rec->normal) : refract(unit_direction, rec->normal, cos_theta, ri);
+        vec3 scattering_direction;
+        if (cannot_refract || reflect_prob > random_double())
+        {
+            scattering_direction = reflect(unit_direction, rec->normal);
+            srec.scatter_type = REFLECT;
+        }
+        else
+        {
+            scattering_direction = refract(unit_direction, rec->normal, cos_theta, ri);
+            srec.scatter_type = REFRACT;
+        }
 
 		// Create scattered ray
         auto scattered_ray = Ray(rec->p, scattering_direction, incoming_ray.time());
@@ -142,8 +181,8 @@ private:
 class diffuse_light : public Material 
 {
 public:
-    diffuse_light(shared_ptr<Texture> texture) : texture(texture) {}
-    diffuse_light(const color& emit) : texture(make_shared<solid_color>(emit)) {}
+    diffuse_light(shared_ptr<Texture> texture) : texture(texture) { type = DIFFUSE_LIGHT; }
+    diffuse_light(const color& emit) : texture(make_shared<solid_color>(emit)) { type = DIFFUSE_LIGHT; }
 
     color emitted(const Ray& incoming_ray, const shared_ptr<hit_record>& rec) const override
     {
@@ -160,14 +199,15 @@ private:
 class isotropic : public Material 
 {
 public:
-    isotropic(const color& albedo) : texture(make_shared<solid_color>(albedo)) {}
-    isotropic(shared_ptr<Texture> texture) : texture(texture) {}
+    isotropic(const color& albedo) : texture(make_shared<solid_color>(albedo)) { type = ISOTROPIC; }
+    isotropic(shared_ptr<Texture> texture) : texture(texture) { type = ISOTROPIC; }
 
     bool scatter(const Ray& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const override
     {
         srec.is_specular = false;
         srec.pdf = make_shared<uniform_sphere_pdf>();
         srec.attenuation = texture->value(rec->texture_coordinates, rec->p);
+        srec.scatter_type = REFLECT;
         return true;
     }
 

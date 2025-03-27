@@ -1,8 +1,6 @@
 #ifndef OBJ_LOADER_H
 #define OBJ_LOADER_H
 
-const string models_path = std::filesystem::current_path().string() + "\\models\\";
-
 shared_ptr<Mesh> load_obj(const string& filename)
 {
 	// Create tiny obj reader object
@@ -11,36 +9,38 @@ shared_ptr<Mesh> load_obj(const string& filename)
 
 	// Define pahts
     auto obj_path = models_path + filename;
-    auto obj_path_fs = std::filesystem::path(obj_path);
+    auto obj_path_fs = fs::path(obj_path);
 
     // Try to load obj file data into reader object
     if (!reader.ParseFromFile(obj_path, reader_config))
     {
-        if (!reader.Error().empty()) 
-            std::cerr << "TinyObjReader: " << reader.Error();
+        if (!reader.Error().empty())
+            Logger::error("TinyObjReader", reader.Error());
 
 		return nullptr;
     }
 
 	// Output loading warnings
-    if (!reader.Warning().empty()) 
-        std::cout << "TinyObjReader: " << reader.Warning();
+    if (!reader.Warning().empty())
+        Logger::warn("TinyObjReader", reader.Warning());
 
     // Obj data
 	auto& attrib = reader.GetAttrib(); // Vertex data (position, normal, color, texture coordinates)
     auto& shapes = reader.GetShapes(); // Submeshes inside the obj
 	auto& materials = reader.GetMaterials(); // Materials included in the obj
 
-    // Create mesh
-    auto mesh = make_shared<Mesh>();
+    // Mesh vars
+    shared_ptr<hittable_list> surfaces = make_shared<hittable_list>();
+    vector<string> texture_names;
+    vector<string> material_names;
 
-    // Loop over shapes
+    // Loop over shapes (surfaces)
     for (size_t s = 0; s < shapes.size(); s++) 
     {
         // Create new shape
         shared_ptr<Surface> surface;
-        shared_ptr<hittable_list> triangles = make_shared<hittable_list>();
         shared_ptr<Material> material;
+        shared_ptr<hittable_list> triangles = make_shared<hittable_list>();
 
         if (!materials.empty())
         {
@@ -60,8 +60,10 @@ shared_ptr<Mesh> load_obj(const string& filename)
             // Else, load diffuse texture
             else
             {
-                auto texture = make_shared<image_texture>(obj_path_fs.parent_path().string() + "/" + materials[material_id].diffuse_texname);
+                auto texture_name = materials[material_id].diffuse_texname;
+                auto texture = make_shared<image_texture>(obj_path_fs.parent_path().string() + "/" + texture_name);
                 material = make_shared<lambertian>(texture);
+                texture_names.push_back(texture_name);
             }
         }
 
@@ -133,11 +135,11 @@ shared_ptr<Mesh> load_obj(const string& filename)
 
         // Create and add surface
         surface = make_shared<Surface>(triangles, material);
-        mesh->add(surface);
+        surfaces->add(surface);
     }
 
-    // Obj name
-	string obj_name = obj_path_fs.stem().string();
+    // Create mesh
+    auto mesh = make_shared<Mesh>(filename, surfaces, material_names, texture_names);
 
     return mesh;
 }

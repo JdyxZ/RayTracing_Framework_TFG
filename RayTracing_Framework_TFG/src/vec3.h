@@ -113,14 +113,13 @@ class vec3 {
     {
         return vec3(random_double(min,max), random_double(min,max), random_double(min,max));
     }
+
+    friend std::ostream& operator<<(std::ostream& out, const vec3& v) {
+        return out << "[" << v.e[0] << ", " << v.e[1] << ", " << v.e[2] << "]";
+    }
 };
 
 // Vector utility functions
-inline std::ostream& operator<<(std::ostream& out, const vec3& v) 
-{
-    return out << v[0] << ' ' << v[1] << ' ' << v[2];
-}
-
 inline vec3 operator+(const vec3& u, const vec3& v) 
 {
     return vec3(u[0] + v[0], u[1] + v[1], u[2] + v[2]);

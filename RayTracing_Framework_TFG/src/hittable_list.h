@@ -6,16 +6,12 @@ class hittable_list
 public:
 
     vector<shared_ptr<Hittable>> objects;     // Primitives 
-    vector<shared_ptr<Hittable>> hittables_with_pdf;
 
 	hittable_list() {}
 
-    void add(shared_ptr<Hittable> object)
+    virtual void add(shared_ptr<Hittable> object)
     {
         objects.push_back(object);
-
-		if (object->has_pdf())
-			hittables_with_pdf.push_back(object);
     }
 
     void add(shared_ptr<hittable_list> list)

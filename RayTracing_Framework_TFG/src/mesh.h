@@ -4,33 +4,47 @@
 class Mesh : public Hittable
 {
 public:
-	Mesh() 
-	{
-		surfaces = make_shared<hittable_list>();
-		bbox = aabb::empty;
-	}
 
-	void add(const shared_ptr<Surface>& surface)
+	Mesh(const string& name, const shared_ptr<hittable_list>& surfaces, const vector<string>& material_names, const vector<string>& texture_names)
+		: _name(name), _material_names(material_names), _texture_names(texture_names)
 	{
-		surfaces->add(surface);
-		bbox = aabb(bbox, surface->bounding_box());
+		type = MESH;
+
+		_num_surfaces = int(surfaces->size());
+		this->surfaces = make_shared<bvh_node>(*surfaces);
+		bbox = this->surfaces->bounding_box();
+		mesh_bvh_chrono = this->surfaces->bvh_chrono();
+
+		for (auto object : surfaces->objects)
+		{
+			auto surface = std::dynamic_pointer_cast<Surface>(object);
+			_num_triangles += surface->num_triangles();
+			mesh_bvh_chrono += surface->bvh_chrono();
+		}
 	}
 
 	bool hit(const Ray& r, interval ray_t, shared_ptr<hit_record>& rec) const override
 	{
-		if (!bbox.hit(r, ray_t))
-			return false;
-
-		return surfaces->intersect(r, ray_t, rec);
+		return surfaces->hit(r, ray_t, rec);
 	}
 
-	aabb bounding_box() const override
-	{
-		return bbox;
-	}
+	aabb bounding_box() const override { return bbox; }
+	const Chrono& bvh_chrono() const { return mesh_bvh_chrono; }
+	const string& name() const { return _name; }
+	const int& num_triangles() const { return _num_triangles; }
+	const int& num_surfaces() const { return _num_surfaces;  }
+	const vector<string>& material_names() { return _material_names; }
+	const vector<string>& texture_names() {return _texture_names; }
+
 
 private:
-	shared_ptr<hittable_list> surfaces;
+	string _name = "error.obj";
+	int _num_triangles = 0;
+	int _num_surfaces = 0;
+	vector<string> _material_names;
+	vector<string> _texture_names;
+	shared_ptr<bvh_node> surfaces;
+	Chrono mesh_bvh_chrono;
 	aabb bbox;
 };
 

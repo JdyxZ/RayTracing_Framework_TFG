@@ -91,6 +91,11 @@ public:
         return p - hit_point;
     }
 
+    shared_ptr<Material> get_material()
+    {
+        return material;
+    }
+
 private:
     point3 Q;
     double D;

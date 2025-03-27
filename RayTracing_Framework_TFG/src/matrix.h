@@ -298,7 +298,10 @@ Matrix Matrix::operator-() const // Unary minus operator
 Matrix& Matrix::operator+=(const Matrix& M)
 {
     if (num_rows != M.num_rows || num_columns != M.num_columns)
-        throw std::invalid_argument("Matrix dimensions must match for += operation.");
+    {
+        string error = Logger::error("MATRIX", "Matrix dimensions must match for += operation.");
+        throw std::invalid_argument(error);
+    }
 
     for (unsigned i = 0; i < num_rows; i++)
     {
@@ -314,7 +317,10 @@ Matrix& Matrix::operator+=(const Matrix& M)
 Matrix& Matrix::operator-=(const Matrix& M)
 {
     if (num_rows != M.num_rows || num_columns != M.num_columns)
-        throw std::invalid_argument("Matrix dimensions must match for -= operation.");
+    {
+        string error = Logger::error("MATRIX", "Matrix dimensions must match for -= operation.");
+        throw std::invalid_argument(error);
+    }
 
     for (unsigned i = 0; i < num_rows; i++)
     {

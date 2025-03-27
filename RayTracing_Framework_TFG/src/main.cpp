@@ -5,17 +5,55 @@
 #define __STDC_LIB_EXT1__
 #define TINYOBJLOADER_IMPLEMENTATION
 
+// Directives
+#pragma execution_character_set("utf-8")
+
+// External Headers
+#include <cmath>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+#include <iostream>
+#include <chrono>
+#include <limits>
+#include <memory>
+#include <random>
+#include <string>
+#include <optional>
+#include <tuple>
+#include <algorithm>
+#include <vector>
+#include <array>
+#include <format>
+
 // External libraries
 #include "../external/stb_image.h"
 #include "../external/stb_image_write.h" 
 #include "../external/tiny_obj_loader.h"
 
+// C++ std usings
+using std::make_shared;
+using std::make_pair;
+using std::shared_ptr;
+using std::nullopt;
+using std::optional;
+using std::string;
+using std::vector;
+using std::tuple;
+using std::pair;
+using std::floor;
+using std::array;
+
+// Namespaces
+namespace fs = std::filesystem;
+
 // Framework headers
+#include "logger.h"
 #include "core.h"
-#include "benchmark.h"
+#include "chrono.h"
 #include "hittable.h"
 #include "hittable_list.h"
-#include "scene.h"
 #include "bvh.h"
 #include "image_writer.h"
 #include "image_reader.h"
@@ -30,10 +68,13 @@
 #include "triangle.h"
 #include "surface.h"
 #include "mesh.h"
+#include "scene.h"
 #include "constant_medium.h"
 #include "hittable_transform.h"
 #include "camera.h"
 #include "obj_loader.h"
+#include "system_project_info.h"
+#include "log_writer.h"
 
 void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
 {
@@ -126,6 +167,7 @@ void book1_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
     camera.defocus_angle = 0.6;
 
     // Scene settings
+    scene.name = "Book 1 Final Scene";
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 50;
 
@@ -145,6 +187,7 @@ void bouncing_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     camera.defocus_angle = 0.6;
 
     // Scene settings
+    scene.name = "Bouncing Spheres";
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 50;
 
@@ -160,6 +203,7 @@ void checkered_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(0, 0, 0);
 
     // Scene settings
+    scene.name = "Checkered Spheres";
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 100;
 
@@ -183,6 +227,7 @@ void earth(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(0, 0, 0);
 
     // Scene settings
+    scene.name = "Earth";
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 100;
 
@@ -207,6 +252,7 @@ void perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(0, 0, 0);
 
     // Scene settings
+    scene.name = "Perlin Spheres";
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 100;
 
@@ -236,6 +282,7 @@ void quads(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(0, 0, 0);
 
     // Scene settings
+    scene.name = "Quads";
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 100;
 
@@ -272,6 +319,7 @@ void simple_light(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(0, 2, 0);
 
     // Scene settings
+    scene.name = "Simple Light";
     scene.sky_blend = false;
     scene.background = BLACK;
     scene.bounce_max_depth = 50;
@@ -311,6 +359,7 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(278, 278, 0);
 
     // Scene settings
+    scene.name = "Cornell Box";
     scene.sky_blend = false;
     scene.background = BLACK;
     scene.bounce_max_depth = 50;
@@ -373,6 +422,7 @@ void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(278, 278, 0);
 
     // Scene settings
+    scene.name = "Cornell Smoke";
     scene.sky_blend = false;
     scene.background = BLACK;
     scene.bounce_max_depth = 50;
@@ -427,6 +477,7 @@ void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
     camera.lookat = point3(278, 278, 0);
 
     // Scene settings
+    scene.name = "Book 2 Final Scene";
     scene.sky_blend = false;
     scene.background = BLACK;
     scene.bounce_max_depth = 40;
@@ -463,6 +514,7 @@ void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
             auto z1 = z0 + w;
 
 			auto box = make_shared<Box>(point3(x0, y0, z0), point3(x1, y1, z1), ground);
+            scene.bvh_chrono += box->bvh_chrono();
 
             boxes.add(box);
         }
@@ -523,7 +575,7 @@ void obj_test(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
-    image.width = 600;
+    image.width = 50;
 
     // Camera settings
     camera.vertical_fov = 20;
@@ -532,14 +584,16 @@ void obj_test(Scene& scene, Camera& camera, ImageWriter& image)
     camera.defocus_angle = 0.6;
 
     // Scene settings
+    scene.name = "OBJ test";
     scene.sky_blend = true;
     scene.background = SKY_BLUE;
-    scene.bounce_max_depth = 50;
-    scene.samples_per_pixel = 100;
+    scene.bounce_max_depth = 5;
+    scene.samples_per_pixel = 10;
 
     // Mesh
     auto mesh = load_obj("cube\\cube.obj");
 
+    // Add objects to scene
     if (mesh) scene.add(mesh);
 }
 
@@ -550,8 +604,17 @@ int main()
     Camera camera;
     ImageWriter image;
 
+    // Scene start
+    scene.start();
+
+    // Log info
+    Logger::info("MAIN", "Scene build started. Initializing scene objects, materials, and geometry.");
+
+    // Start scene build time chrono
+    scene.build_chrono.start();
+
     // Choose rendering scene
-    switch (10)
+    switch (7)
     {
     case 0:
         book1_final_scene(scene, camera, image);
@@ -592,6 +655,14 @@ int main()
     auto BVH_tree = make_shared<bvh_node>(scene);
     scene.clear();
     scene.add(BVH_tree);
+    scene.bvh_depth = BVH_tree->depth;
+    scene.bvh_nodes = BVH_tree->nodes;
+
+    // End scene build time chrono
+    scene.build_chrono.end();
+
+    // Info log
+    Logger::info("Main", "Scene build completed. Geometry, materials, and objects have been successfully initialized.");
 
     // Intialize image
     image.initialize();
@@ -602,7 +673,17 @@ int main()
     // Render scene
     camera.render(scene, image);
 
-    // Benchmark
-    scene.chrono.print_elapsed();
+    // Encode and save image with desired format
+    image.save();
+
+    // Log info
+    Logger::info("Main", "Scene succesfully rendered and output saved.");
+
+    // Scene end
+    scene.end();
+
+    // Write scene log
+    LogWriter log;
+    log.write(scene, camera, image);    
 }
         

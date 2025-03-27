@@ -93,7 +93,7 @@ private:
         // Get the original bounding box
         aabb original_bbox = object->bounding_box();
 
-        // Iterate and rotate the 8 corner points of the AABB and find the new min and ,ax
+        // Iterate and rotate the 8 corner points of the AABB and find the new min and max
         point3 min(infinity, infinity, infinity);
         point3 max(-infinity, -infinity, -infinity);
 
