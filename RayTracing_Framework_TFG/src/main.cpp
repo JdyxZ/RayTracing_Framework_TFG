@@ -1,80 +1,27 @@
-// External definitions
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STBI_FAILURE_USERMSG
-#define __STDC_LIB_EXT1__
-#define TINYOBJLOADER_IMPLEMENTATION
-
-// Directives
-#pragma execution_character_set("utf-8")
-
-// External Headers
-#include <cmath>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <filesystem>
-#include <iostream>
-#include <chrono>
-#include <limits>
-#include <memory>
-#include <random>
-#include <string>
-#include <optional>
-#include <tuple>
-#include <algorithm>
-#include <vector>
-#include <array>
-#include <format>
-
-// External libraries
-#include "../external/stb_image.h"
-#include "../external/stb_image_write.h" 
-#include "../external/tiny_obj_loader.h"
-
-// C++ std usings
-using std::make_shared;
-using std::make_pair;
-using std::shared_ptr;
-using std::nullopt;
-using std::optional;
-using std::string;
-using std::vector;
-using std::tuple;
-using std::pair;
-using std::floor;
-using std::array;
-
-// Namespaces
-namespace fs = std::filesystem;
-
-// Framework headers
-#include "logger.h"
-#include "core.h"
-#include "chrono.h"
-#include "hittable.h"
-#include "hittable_list.h"
-#include "bvh.h"
-#include "image_writer.h"
-#include "image_reader.h"
-#include "perlin.h"
-#include "texture.h"
-#include "onb.h"
-#include "pdf.h"
-#include "material.h"
-#include "quad.h"
-#include "box.h"
-#include "sphere.h"
-#include "triangle.h"
-#include "surface.h"
-#include "mesh.h"
-#include "scene.h"
-#include "constant_medium.h"
-#include "hittable_transform.h"
-#include "camera.h"
-#include "obj_loader.h"
-#include "system_project_info.h"
-#include "log_writer.h"
+﻿// Headers
+#include "core.hpp"
+#include "logger.hpp"
+#include "framework.hpp"
+#include "scene.hpp"
+#include "camera.hpp"
+#include "image_writer.hpp"
+#include "material.hpp"
+#include "texture.hpp"
+#include "sphere.hpp"
+#include "triangle.hpp"
+#include "quad.hpp"
+#include "box.hpp"
+#include "bvh.hpp"
+#include "mesh.hpp"
+#include "perlin.hpp"
+#include "vec3.hpp"
+#include "color.hpp"
+#include "utilities.hpp"
+#include "hittable_transform.hpp"
+#include "obj_loader.hpp"
+#include "constant_medium.hpp"
+#include "log_writer.hpp"
+#include "chrono.hpp"
 
 void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
 {
@@ -611,7 +558,7 @@ int main()
     Logger::info("MAIN", "Scene build started. Initializing scene objects, materials, and geometry.");
 
     // Start scene build time chrono
-    scene.build_chrono.start();
+    scene.build_chrono->start();
 
     // Choose rendering scene
     switch (7)
@@ -659,7 +606,7 @@ int main()
     scene.bvh_nodes = BVH_tree->nodes;
 
     // End scene build time chrono
-    scene.build_chrono.end();
+    scene.build_chrono->end();
 
     // Info log
     Logger::info("Main", "Scene build completed. Geometry, materials, and objects have been successfully initialized.");

@@ -1,0 +1,179 @@
+﻿// Headers
+#include "core.hpp"
+#include "material.hpp"
+#include "texture.hpp"
+#include "hittable.hpp"
+#include "pdf.hpp"
+#include "utilities.hpp"
+#include "ray.hpp"
+
+bool Material::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+{
+    return false;
+}
+
+color Material::emitted(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec) const
+{
+    return color(0, 0, 0);
+}
+
+double Material::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
+{
+    return 0;
+}
+
+const MATERIAL_TYPE Material::get_type() const
+{
+    return type;
+}
+
+lambertian::lambertian(const color& albedo) : texture(make_shared<solid_color>(albedo)) 
+{ 
+    type = LAMBERTIAN; 
+}
+
+lambertian::lambertian(shared_ptr<Texture> texture) : texture(texture) 
+{ 
+    type = LAMBERTIAN; 
+}
+
+bool lambertian::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+{
+    // auto scatter_direction = rec->normal + random_unit_vector();
+    srec.is_specular = false;
+    srec.specular_ray = nullptr;
+    srec.pdf = make_shared<cosine_hemisphere_pdf>(rec->normal);
+    srec.attenuation = texture->value(rec->texture_coordinates, rec->p);
+    srec.scatter_type = REFLECT;
+    return true;
+}
+
+double lambertian::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
+{
+    auto cos_theta = dot(rec->normal, unit_vector(scattered_ray->direction()));
+    return cos_theta < 0 ? 0 : cos_theta / pi;
+}
+
+metal::metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) { type = METAL; }
+
+bool metal::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+{
+    // Reflect the incoming ray
+    vec3 reflected = reflect(incoming_ray->direction(), rec->normal);
+    reflected = unit_vector(reflected) + (fuzz * random_unit_vector());
+
+    // Create reflected ray
+    auto reflected_ray = Ray(rec->p, reflected, incoming_ray->time());
+
+    // Save data into scatter record
+    srec.is_specular = true;
+    srec.specular_ray = make_shared<Ray>(reflected_ray);
+    srec.pdf = nullptr;
+    srec.attenuation = albedo;
+    srec.scatter_type = REFLECT;
+
+    // Absorb the ray if it's reflected into the surface
+    // return dot(reflected_ray.direction(), rec->normal) > 0;
+
+    return true;
+}
+
+dielectric::dielectric(double refraction_index) : refraction_index(refraction_index) 
+{ 
+    type = DIELECTRIC; 
+}
+
+bool dielectric::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+{
+    // Attenuation is always 1 (the glass surface absorbs nothing)
+    auto attenuation = color(1.0, 1.0, 1.0);
+
+    // Check refractive index order
+    double ri = rec->front_face ? (1.0 / refraction_index) : refraction_index;
+
+    // Calculate cosinus and sinus of theta (angle between the ray and the normal)
+    vec3 unit_direction = unit_vector(incoming_ray->direction());
+    double cos_theta = std::fmin(dot(-unit_direction, rec->normal), 1.0);
+    double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
+
+    // Check if there is total reflection (the ray cannot refract)
+    bool cannot_refract = ri * sin_theta > 1.0;
+
+    // Check reflectance probability
+    double reflect_prob = reflectance(cos_theta, ri);
+
+    // Check if the ray should reflect or refract
+    vec3 scattering_direction;
+    if (cannot_refract || reflect_prob > random_double())
+    {
+        scattering_direction = reflect(unit_direction, rec->normal);
+        srec.scatter_type = REFLECT;
+    }
+    else
+    {
+        scattering_direction = refract(unit_direction, rec->normal, cos_theta, ri);
+        srec.scatter_type = REFRACT;
+    }
+
+    // Create scattered ray
+    auto scattered_ray = Ray(rec->p, scattering_direction, incoming_ray->time());
+
+    // Save data into scatter record
+    srec.is_specular = true;
+    srec.specular_ray = make_shared<Ray>(scattered_ray);
+    srec.pdf = nullptr;
+    srec.attenuation = attenuation;
+
+    return true;
+}
+
+double dielectric::reflectance(double cosine, double refraction_index)
+{
+    // Use Schlick's approximation for reflectance.
+    auto r0 = (1 - refraction_index) / (1 + refraction_index);
+    r0 = r0 * r0;
+    return r0 + (1 - r0) * std::pow((1 - cosine), 5);
+}
+
+diffuse_light::diffuse_light(shared_ptr<Texture> texture) : texture(texture) 
+{ 
+    type = DIFFUSE_LIGHT; 
+}
+
+diffuse_light::diffuse_light(const color& emit) : texture(make_shared<solid_color>(emit)) 
+{ 
+    type = DIFFUSE_LIGHT; 
+}
+
+color diffuse_light::emitted(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec) const
+{
+    if (!rec->front_face)
+        return color(0, 0, 0);
+
+    return texture->value(rec->texture_coordinates, rec->p);
+}
+
+isotropic::isotropic(const color& albedo) : texture(make_shared<solid_color>(albedo)) 
+{ 
+    type = ISOTROPIC; 
+}
+
+isotropic::isotropic(shared_ptr<Texture> texture) : texture(texture) 
+{ 
+    type = ISOTROPIC; 
+}
+
+bool isotropic::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+{
+    srec.is_specular = false;
+    srec.specular_ray = nullptr;
+    srec.pdf = make_shared<uniform_sphere_pdf>();
+    srec.attenuation = texture->value(rec->texture_coordinates, rec->p);
+    srec.scatter_type = REFLECT;
+    return true;
+}
+
+double isotropic::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
+{
+    return 1 / (4 * pi);
+}
