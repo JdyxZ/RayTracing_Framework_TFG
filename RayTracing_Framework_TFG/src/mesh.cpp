@@ -22,16 +22,16 @@ Mesh::Mesh(const string& name, const shared_ptr<hittable_list>& surfaces, const 
 	{
 		auto surface = std::dynamic_pointer_cast<Surface>(object);
 		_num_triangles += surface->num_triangles();
-		mesh_bvh_chrono += surface->bvh_chrono();
+		*mesh_bvh_chrono += *surface->bvh_chrono();
 	}
 }
 
-bool Mesh::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool Mesh::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
 	return surfaces->hit(r, ray_t, rec);
 }
 
-shared_ptr<aabb> Mesh::bounding_box() const
+shared_ptr<AABB> Mesh::bounding_box() const
 { 
 	return bbox; 
 }

@@ -7,8 +7,8 @@
 // Forward declarations
 class Material;
 class Ray;
-class interval;
-class aabb;
+class Interval;
+class AABB;
 
 enum PRIMITIVE
 {
@@ -67,8 +67,8 @@ class Hittable
 public:
     virtual ~Hittable() = default;
 
-    virtual bool hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const = 0;
-    virtual shared_ptr<aabb> bounding_box() const = 0;
+    virtual bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const = 0;
+    virtual shared_ptr<AABB> bounding_box() const = 0;
     const PRIMITIVE get_type() const;
     const bool has_pdf() const;
     virtual double pdf_value(const point3& hit_point, const vec3& scattering_direction) const;

@@ -1,4 +1,4 @@
-// Internal Headers
+﻿// Internal Headers
 #include "core.hpp"
 #include "obj_loader.hpp"
 #include "logger.hpp"
@@ -70,14 +70,14 @@ shared_ptr<Mesh> load_obj(const string& filename)
                     static_cast<double>(materials[material_id].diffuse[1]),
                     static_cast<double>(materials[material_id].diffuse[2]));
 
-                material = make_shared<lambertian>(albedo);
+                material = make_shared<Lambertian>(albedo);
             }
             // Else, load diffuse texture
             else
             {
                 auto texture_name = materials[material_id].diffuse_texname;
-                auto texture = make_shared<image_texture>(obj_path_fs.parent_path().string() + "/" + texture_name);
-                material = make_shared<lambertian>(texture);
+                auto texture = make_shared<ImageTexture>(obj_path_fs.parent_path().string() + "/" + texture_name);
+                material = make_shared<Lambertian>(texture);
                 texture_names.push_back(texture_name);
             }
         }

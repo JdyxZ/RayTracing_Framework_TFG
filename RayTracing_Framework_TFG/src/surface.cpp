@@ -15,12 +15,12 @@ Surface::Surface(const shared_ptr<hittable_list>& triangles, const shared_ptr<Ma
 	surface_bvh_chrono = this->triangles->bvh_chrono();
 }
 
-bool Surface::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool Surface::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
 	return triangles->hit(r, ray_t, rec);
 }
 
-shared_ptr<aabb> Surface::bounding_box() const
+shared_ptr<AABB> Surface::bounding_box() const
 {
 	return bbox;
 }

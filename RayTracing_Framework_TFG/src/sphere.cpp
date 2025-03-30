@@ -16,7 +16,7 @@ Sphere::Sphere(const point3& static_center, const double radius, shared_ptr<Mate
     center = motion_vector(origin, direction);
 
     vec3 radius_vector = vec3(radius, radius, radius);
-    bbox = make_shared<aabb>(static_center - radius_vector, static_center + radius_vector);
+    bbox = make_shared<AABB>(static_center - radius_vector, static_center + radius_vector);
 }
 
 Sphere::Sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<Material> material) : radius(std::fmax(0, radius)), material(material)
@@ -27,12 +27,12 @@ Sphere::Sphere(const point3& start_center, const point3& end_center, const doubl
     center = motion_vector(origin, direction);
 
     vec3 radius_vector = vec3(radius, radius, radius);
-    aabb box1(center.at(0) - radius_vector, center.at(0) + radius_vector);
-    aabb box2(center.at(1) - radius_vector, center.at(1) + radius_vector);
-    bbox = make_shared<aabb>(box1, box2);
+    AABB box1(center.at(0) - radius_vector, center.at(0) + radius_vector);
+    AABB box2(center.at(1) - radius_vector, center.at(1) + radius_vector);
+    bbox = make_shared<AABB>(box1, box2);
 }
 
-bool Sphere::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool Sphere::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     point3 current_center = center.at(r->time());
 
@@ -73,7 +73,7 @@ bool Sphere::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record
     return true;
 }
 
-shared_ptr<aabb> Sphere::bounding_box() const
+shared_ptr<AABB> Sphere::bounding_box() const
 {
     return bbox;
 }
@@ -85,7 +85,7 @@ double Sphere::pdf_value(const point3& origin, const vec3& direction) const
     shared_ptr<hit_record> rec;
     auto ray = make_shared<Ray>(origin, direction);
 
-    if (!this->hit(ray, interval(0.001, infinity), rec))
+    if (!this->hit(ray, Interval(0.001, infinity), rec))
         return 0;
 
     auto dist_squared = (center.at(0) - origin).length_squared();

@@ -20,7 +20,7 @@ tuple<int, int, int> compute_color(const color& pixel_color)
     b = linear_to_gamma(b);
 
     // Translate the [0,1] component values to the byte range [0,255].
-    static const interval intensity(0.000, 0.999);
+    static const Interval intensity(0.000, 0.999);
     int red_byte = int(256 * intensity.clamp(r));
     int green_byte = int(256 * intensity.clamp(g));
     int blue_byte = int(256 * intensity.clamp(b));

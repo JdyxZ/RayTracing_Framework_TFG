@@ -1,4 +1,4 @@
-// Headers
+﻿// Headers
 #include "core.hpp"
 #include "hittable_list.hpp"
 #include "interval.hpp"
@@ -27,7 +27,7 @@ size_t hittable_list::size() const
     return objects.size();
 }
 
-bool hittable_list::intersect(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool hittable_list::intersect(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     shared_ptr<hit_record> temp_rec = make_shared<hit_record>();
     bool hit_anything = false;
@@ -35,7 +35,7 @@ bool hittable_list::intersect(const shared_ptr<Ray>& r, interval ray_t, shared_p
 
     for (const auto& object : objects)
     {
-        if (object->hit(r, interval(ray_t.min, closest_object_so_far), temp_rec))
+        if (object->hit(r, Interval(ray_t.min, closest_object_so_far), temp_rec))
         {
             hit_anything = true;
             closest_object_so_far = temp_rec->t;

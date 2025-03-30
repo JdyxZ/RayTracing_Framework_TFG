@@ -26,14 +26,14 @@
 void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
 {
     // Materials
-    auto material_ground = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    auto material_center = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    auto material_left = make_shared<dielectric>(1.50);
-    auto material_bubble = make_shared<dielectric>(1.00 / 1.50);
-    auto material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
-    auto material1 = make_shared<dielectric>(1.5);
-    auto material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
-    auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
+    auto material_ground = make_shared<Lambertian>(color(0.5, 0.5, 0.5));
+    auto material_center = make_shared<Lambertian>(color(0.5, 0.5, 0.5));
+    auto material_left = make_shared<Dielectric>(1.50);
+    auto material_bubble = make_shared<Dielectric>(1.00 / 1.50);
+    auto material_right = make_shared<Metal>(color(0.8, 0.6, 0.2), 1.0);
+    auto material1 = make_shared<Dielectric>(1.5);
+    auto material2 = make_shared<Lambertian>(color(0.4, 0.2, 0.1));
+    auto material3 = make_shared<Metal>(color(0.7, 0.6, 0.5), 0.0);
 
     // Triangles (define them in counter-clockwise order)
     vertex A, B, C;
@@ -58,7 +58,7 @@ void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
                 if (choose_mat < 0.8)
                 {
                     auto albedo = color::random() * color::random();
-                    sphere_material = make_shared<lambertian>(albedo);
+                    sphere_material = make_shared<Lambertian>(albedo);
 
                     if (blur_motion)
                     {
@@ -75,13 +75,13 @@ void book1_final_scene_creation(Scene& scene, bool blur_motion = false)
                 {
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
-                    sphere_material = make_shared<metal>(albedo, fuzz);
+                    sphere_material = make_shared<Metal>(albedo, fuzz);
                     scene.add(make_shared<Sphere>(center, 0.2, sphere_material));
                 }
                 // Glass
                 else
                 {
-                    sphere_material = make_shared<dielectric>(1.5);
+                    sphere_material = make_shared<Dielectric>(1.5);
                     scene.add(make_shared<Sphere>(center, 0.2, sphere_material));
                 }
             }
@@ -155,11 +155,11 @@ void checkered_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     scene.samples_per_pixel = 100;
 
     // Materials
-    auto checker = make_shared<checker_texture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
+    auto checker = make_shared<CheckerTexture>(0.32, color(.2, .3, .1), color(.9, .9, .9));
 
     // Spheres
-    auto sphere1 = make_shared<Sphere>(point3(0, -10, 0), 10, make_shared<lambertian>(checker));
-    auto sphere2 = make_shared<Sphere>(point3(0, 10, 0), 10, make_shared<lambertian>(checker));
+    auto sphere1 = make_shared<Sphere>(point3(0, -10, 0), 10, make_shared<Lambertian>(checker));
+    auto sphere2 = make_shared<Sphere>(point3(0, 10, 0), 10, make_shared<Lambertian>(checker));
 
     // Add primitives
     scene.add(sphere1);
@@ -179,10 +179,10 @@ void earth(Scene& scene, Camera& camera, ImageWriter& image)
     scene.samples_per_pixel = 100;
 
     // Textures
-    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
+    auto earth_texture = make_shared<ImageTexture>("earthmap.jpg");
 
     // Materials
-    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto earth_surface = make_shared<Lambertian>(earth_texture);
 
     // Spheres
     auto globe = make_shared<Sphere>(point3(0, 0, 0), 2, earth_surface);
@@ -204,10 +204,10 @@ void perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     scene.samples_per_pixel = 100;
 
     // Textures
-    auto perlin_texture = make_shared<noise_texture>(4, 7);
+    auto perlin_texture = make_shared<NoiseTexture>(4, 7);
 
     // Materials
-    auto perlin_material = make_shared<lambertian>(perlin_texture);
+    auto perlin_material = make_shared<Lambertian>(perlin_texture);
 
     // Spheres
     auto sphere1 = make_shared<Sphere>(point3(0, -1000, 0), 1000, perlin_material);
@@ -234,11 +234,11 @@ void quads(Scene& scene, Camera& camera, ImageWriter& image)
     scene.samples_per_pixel = 100;
 
     // Materials
-    auto left_red = make_shared<lambertian>(color(1.0, 0.2, 0.2));
-    auto back_green = make_shared<lambertian>(color(0.2, 1.0, 0.2));
-    auto right_blue = make_shared<lambertian>(color(0.2, 0.2, 1.0));
-    auto upper_orange = make_shared<lambertian>(color(1.0, 0.5, 0.0));
-    auto lower_teal = make_shared<lambertian>(color(0.2, 0.8, 0.8));
+    auto left_red = make_shared<Lambertian>(color(1.0, 0.2, 0.2));
+    auto back_green = make_shared<Lambertian>(color(0.2, 1.0, 0.2));
+    auto right_blue = make_shared<Lambertian>(color(0.2, 0.2, 1.0));
+    auto upper_orange = make_shared<Lambertian>(color(1.0, 0.5, 0.0));
+    auto lower_teal = make_shared<Lambertian>(color(0.2, 0.8, 0.8));
 
     // Quads
     auto quad1 = make_shared<Quad>(point3(-3, -2, 5), vec3(0, 0, -4), vec3(0, 4, 0), left_red);
@@ -273,11 +273,11 @@ void simple_light(Scene& scene, Camera& camera, ImageWriter& image)
     scene.samples_per_pixel = 100;
 
     // Textures
-    auto perlin_texture = make_shared<noise_texture>(4, 7);
+    auto perlin_texture = make_shared<NoiseTexture>(4, 7);
 
     // Materials
-    auto perlin_material = make_shared<lambertian>(perlin_texture);
-    auto diffuse_light_material = make_shared<diffuse_light>(color(4, 4, 4));
+    auto perlin_material = make_shared<Lambertian>(perlin_texture);
+    auto diffuse_light_material = make_shared<DiffuseLight>(color(4, 4, 4));
 
     // Spheres
     auto sphere1 = make_shared<Sphere>(point3(0, -1000, 0), 1000, perlin_material);
@@ -313,12 +313,12 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.samples_per_pixel = 100;
 
     // Materials
-    auto red = make_shared<lambertian>(color(.65, .05, .05));
-    auto white = make_shared<lambertian>(color(.73, .73, .73));
-    auto green = make_shared<lambertian>(color(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(color(15, 15, 15));
-    auto aluminum = make_shared<metal>(color(0.8, 0.85, 0.88), 0.0);
-    auto glass = make_shared<dielectric>(1.5);
+    auto red = make_shared<Lambertian>(color(.65, .05, .05));
+    auto white = make_shared<Lambertian>(color(.73, .73, .73));
+    auto green = make_shared<Lambertian>(color(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(color(15, 15, 15));
+    auto aluminum = make_shared<Metal>(color(0.8, 0.85, 0.88), 0.0);
+    auto glass = make_shared<Dielectric>(1.5);
 
     // Quads
     auto quad1 = make_shared<Quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green);
@@ -375,10 +375,10 @@ void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
     scene.bounce_max_depth = 50;
     scene.samples_per_pixel = 200;
 
-    auto red = make_shared<lambertian>(color(.65, .05, .05));
-    auto white = make_shared<lambertian>(color(.73, .73, .73));
-    auto green = make_shared<lambertian>(color(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(color(7, 7, 7));
+    auto red = make_shared<Lambertian>(color(.65, .05, .05));
+    auto white = make_shared<Lambertian>(color(.73, .73, .73));
+    auto green = make_shared<Lambertian>(color(.12, .45, .15));
+    auto light = make_shared<DiffuseLight>(color(7, 7, 7));
 
     auto quad1 = make_shared<Quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green);
     auto quad2 = make_shared<Quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red);
@@ -432,18 +432,18 @@ void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
     int boxes_per_side = 20;
 
     // Textures
-    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
-    auto perlin_texture = make_shared<noise_texture>(0.2, 7);
+    auto earth_texture = make_shared<ImageTexture>("earthmap.jpg");
+    auto perlin_texture = make_shared<NoiseTexture>(0.2, 7);
 
     // Materials
-    auto ground = make_shared<lambertian>(color(0.48, 0.83, 0.53));
-    auto light = make_shared<diffuse_light>(color(7, 7, 7));
-    auto sphere_material = make_shared<lambertian>(color(0.7, 0.3, 0.1));
-    auto dielectric_material = make_shared<dielectric>(1.5);
-    auto metal_material = make_shared<metal>(color(0.8, 0.8, 0.9), 1.0);
-    auto white_material = make_shared<lambertian>(color(.73, .73, .73));
-    auto perlin_material = make_shared<lambertian>(perlin_texture);
-    auto earth_surface = make_shared<lambertian>(earth_texture);
+    auto ground = make_shared<Lambertian>(color(0.48, 0.83, 0.53));
+    auto light = make_shared<DiffuseLight>(color(7, 7, 7));
+    auto sphere_material = make_shared<Lambertian>(color(0.7, 0.3, 0.1));
+    auto dielectric_material = make_shared<Dielectric>(1.5);
+    auto metal_material = make_shared<Metal>(color(0.8, 0.8, 0.9), 1.0);
+    auto white_material = make_shared<Lambertian>(color(.73, .73, .73));
+    auto perlin_material = make_shared<Lambertian>(perlin_texture);
+    auto earth_surface = make_shared<Lambertian>(earth_texture);
 
     // Create ground boxes
 	hittable_list boxes;
@@ -461,7 +461,7 @@ void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
             auto z1 = z0 + w;
 
 			auto box = make_shared<Box>(point3(x0, y0, z0), point3(x1, y1, z1), ground);
-            scene.bvh_chrono += box->bvh_chrono();
+            *scene.bvh_chrono += *box->bvh_chrono();
 
             boxes.add(box);
         }

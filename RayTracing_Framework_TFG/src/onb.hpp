@@ -1,10 +1,7 @@
-#pragma once
+﻿#pragma once
 
 // Headers
-#include "framework.hpp"
-
-// Forward declaration
-class vec3;
+#include "vec3.hpp"
 
 class ONB  // Orthonormal Basis (ONB)
 { 

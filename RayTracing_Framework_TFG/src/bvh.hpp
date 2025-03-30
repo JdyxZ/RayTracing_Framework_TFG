@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Headers
 #include "core.hpp"
@@ -21,14 +21,14 @@ public:
 
     bvh_node(vector<shared_ptr<Hittable>>& objects, size_t start, size_t end);
 
-    bool hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const override;
-    shared_ptr<aabb> bounding_box() const override;
+    bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
+    shared_ptr<AABB> bounding_box() const override;
     const shared_ptr<Chrono> bvh_chrono() const;
 
 private:
     shared_ptr<Hittable> left;
     shared_ptr<Hittable> right;
-    shared_ptr<aabb> bbox;
+    shared_ptr<AABB> bbox;
     shared_ptr<Chrono> chrono;
 
     static bool box_compare(const shared_ptr<Hittable>& a, const shared_ptr<Hittable>& b, int axis_index);

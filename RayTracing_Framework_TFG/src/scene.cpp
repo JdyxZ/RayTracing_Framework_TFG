@@ -50,7 +50,7 @@ void Scene::add(shared_ptr<Hittable> object)
     {
         auto box_ptr = std::dynamic_pointer_cast<Box>(object);
 
-        bvh_chrono += box_ptr->bvh_chrono();
+        *bvh_chrono += *box_ptr->bvh_chrono();
 
         quads += 6;
         primitives += 6;
@@ -76,13 +76,13 @@ void Scene::add(shared_ptr<Hittable> object)
         triangles += mesh_triangles;
         primitives += mesh_triangles;
 
-        bvh_chrono += mesh_ptr->bvh_chrono();
+        *bvh_chrono += *mesh_ptr->bvh_chrono();
         break;
     }
     case BVH_NODE:
     {
         auto bvh_node_ptr = std::dynamic_pointer_cast<bvh_node>(object);
-        bvh_chrono += bvh_node_ptr->bvh_chrono();
+        *bvh_chrono += *bvh_node_ptr->bvh_chrono();
         break;
     }
     }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "hittable.hpp"
 
@@ -21,10 +21,10 @@ public:
 
     Triangle(vertex A, vertex B, vertex C, shared_ptr<Material> material);
 
-    bool hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const override;
+    bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
     bool has_vertex_colors() const;
     bool has_vertex_normals() const;
-    shared_ptr<aabb> bounding_box() const override;
+    shared_ptr<AABB> bounding_box() const override;
     double pdf_value(const point3& hit_point, const vec3& scattering_direction) const override;
     vec3 random_scattering_ray(const point3& hit_point) const override; // https://stackoverflow.com/questions/19654251/random-point-inside-triangle-inside-java
 
@@ -32,7 +32,7 @@ private:
     vec3 AB, AC, N;
     double area;
     shared_ptr<Material> material;
-    shared_ptr<aabb> bbox;
+    shared_ptr<AABB> bbox;
 
     pair<double, double> interpolate_texture_coordinates(double u, double v, double w) const;
 };

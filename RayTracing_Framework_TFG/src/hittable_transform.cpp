@@ -1,4 +1,4 @@
-// Headers
+﻿// Headers
 #include "core.hpp"
 #include "hittable_transform.hpp"
 #include "ray.hpp"
@@ -12,7 +12,7 @@ translate::translate(shared_ptr<Hittable> object, const vec3& offset) : object(o
     bbox = compute_translated_bbox();
 }
 
-bool translate::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool translate::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     // Move the ray backwards by the offset
     auto translated_ray = make_shared<Ray>(r->origin() - offset, r->direction(), r->time());
@@ -27,14 +27,14 @@ bool translate::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_rec
     return true;
 }
 
-shared_ptr<aabb> translate::bounding_box() const
+shared_ptr<AABB> translate::bounding_box() const
 {
     return bbox;
 }
 
-shared_ptr<aabb> translate::compute_translated_bbox()
+shared_ptr<AABB> translate::compute_translated_bbox()
 {
-    return object->bounding_box() + offset;
+    return make_shared<AABB>(*object->bounding_box() + offset);
 }
 
 rotate::rotate(shared_ptr<Hittable> object, vec3 axis, double angle) : object(object)
@@ -53,7 +53,7 @@ rotate::rotate(shared_ptr<Hittable> object, vec3 axis, double angle) : object(ob
     bbox = compute_rotated_bbox();
 }
 
-bool rotate::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool rotate::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     // Transform the ray from world space to object space using rotation quaternion
     vec3 rotated_origin = rotate3D(rotation_quat, r->origin(), inverse_rotation_quat);
@@ -71,15 +71,15 @@ bool rotate::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record
     return true;
 }
 
-shared_ptr<aabb> rotate::bounding_box() const
+shared_ptr<AABB> rotate::bounding_box() const
 {
     return bbox;
 }
 
-shared_ptr<aabb> rotate::compute_rotated_bbox() const
+shared_ptr<AABB> rotate::compute_rotated_bbox() const
 {
     // Get the original bounding box
-    shared_ptr<aabb> original_bbox = object->bounding_box();
+    shared_ptr<AABB> original_bbox = object->bounding_box();
 
     // Iterate and rotate the 8 corner points of the AABB and find the new min and max
     point3 min(infinity, infinity, infinity);
@@ -91,9 +91,9 @@ shared_ptr<aabb> rotate::compute_rotated_bbox() const
         {
             for (int k = 0; k < 2; k++)
             {
-                double x = i * original_bbox->x.max + (1 - i) * original_bbox->x.min;
-                double y = j * original_bbox->y.max + (1 - j) * original_bbox->y.min;
-                double z = k * original_bbox->z.max + (1 - k) * original_bbox->z.min;
+                double x = i * original_bbox->x->max + (1 - i) * original_bbox->x->min;
+                double y = j * original_bbox->y->max + (1 - j) * original_bbox->y->min;
+                double z = k * original_bbox->z->max + (1 - k) * original_bbox->z->min;
 
                 // Rotate the corner point
                 vec3 rotated_corner = rotate3D(rotation_quat, point3(x, y, z), inverse_rotation_quat);
@@ -108,7 +108,7 @@ shared_ptr<aabb> rotate::compute_rotated_bbox() const
         }
     }
 
-    return make_shared<aabb>(min, max);
+    return make_shared<AABB>(min, max);
 }
 
 scale::scale(shared_ptr<Hittable> object, const vec3& scale_factor) : object(object), scale_factor(scale_factor), inverse_scale(1.0 / scale_factor)
@@ -116,7 +116,7 @@ scale::scale(shared_ptr<Hittable> object, const vec3& scale_factor) : object(obj
     bbox = compute_scaled_bbox();
 }
 
-bool scale::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool scale::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     // Scale the ray into object space
     vec3 scaled_origin = r->origin() * inverse_scale;
@@ -136,13 +136,13 @@ bool scale::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>
     return true;
 }
 
-shared_ptr<aabb> scale::bounding_box() const
+shared_ptr<AABB> scale::bounding_box() const
 {
     return bbox;
 }
 
-shared_ptr<aabb> scale::compute_scaled_bbox() const
+shared_ptr<AABB> scale::compute_scaled_bbox() const
 {
-    return object->bounding_box() * scale_factor;
+    return make_shared<AABB>(*object->bounding_box() * scale_factor);
 }
 

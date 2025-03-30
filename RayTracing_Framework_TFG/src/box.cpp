@@ -1,4 +1,4 @@
-// Headers
+﻿// Headers
 #include "core.hpp"
 #include "box.hpp"
 #include "quad.hpp"
@@ -50,18 +50,18 @@ Box::Box(const point3& p0, const point3& p1, shared_ptr<Material> material)
 	box_bvh_chrono = sides->bvh_chrono();
 
 	// Construct the bounding box of the box
-	interval x = interval(min.x(), max.x());
-	interval y = interval(min.y(), max.y());
-	interval z = interval(min.z(), max.z());
-	bbox = make_shared<aabb>(x, y, z);
+	Interval x = Interval(min.x(), max.x());
+	Interval y = Interval(min.y(), max.y());
+	Interval z = Interval(min.z(), max.z());
+	bbox = make_shared<AABB>(x, y, z);
 }
 
-bool Box::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool Box::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
 	return sides->hit(r, ray_t, rec);
 }
 
-shared_ptr<aabb> Box::bounding_box() const
+shared_ptr<AABB> Box::bounding_box() const
 {
 	return bbox;
 }

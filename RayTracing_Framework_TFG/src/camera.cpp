@@ -1,4 +1,4 @@
-// Headers
+﻿// Headers
 #include "core.hpp"
 #include "camera.hpp"
 #include "utilities.hpp"
@@ -144,7 +144,7 @@ color Camera::ray_color(const shared_ptr<Ray>& sample_ray, int depth, const Scen
     shared_ptr<hit_record> rec;
 
     // Define ray intersection interval
-    interval ray_t(scene.min_hit_distance, infinity);
+    Interval ray_t(scene.min_hit_distance, infinity);
 
     // Sky hit
     if (!scene.intersect(sample_ray, ray_t, rec))

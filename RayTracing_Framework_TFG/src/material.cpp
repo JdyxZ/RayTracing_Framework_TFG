@@ -27,17 +27,17 @@ const MATERIAL_TYPE Material::get_type() const
     return type;
 }
 
-lambertian::lambertian(const color& albedo) : texture(make_shared<solid_color>(albedo)) 
+Lambertian::Lambertian(const color& albedo) : texture(make_shared<SolidColor>(albedo)) 
 { 
     type = LAMBERTIAN; 
 }
 
-lambertian::lambertian(shared_ptr<Texture> texture) : texture(texture) 
+Lambertian::Lambertian(shared_ptr<Texture> texture) : texture(texture) 
 { 
     type = LAMBERTIAN; 
 }
 
-bool lambertian::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+bool Lambertian::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
 {
     // auto scatter_direction = rec->normal + random_unit_vector();
     srec.is_specular = false;
@@ -48,15 +48,15 @@ bool lambertian::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<h
     return true;
 }
 
-double lambertian::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
+double Lambertian::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
 {
     auto cos_theta = dot(rec->normal, unit_vector(scattered_ray->direction()));
     return cos_theta < 0 ? 0 : cos_theta / pi;
 }
 
-metal::metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) { type = METAL; }
+Metal::Metal(const color& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1 ? fuzz : 1) { type = METAL; }
 
-bool metal::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+bool Metal::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
 {
     // Reflect the incoming ray
     vec3 reflected = reflect(incoming_ray->direction(), rec->normal);
@@ -78,12 +78,12 @@ bool metal::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_re
     return true;
 }
 
-dielectric::dielectric(double refraction_index) : refraction_index(refraction_index) 
+Dielectric::Dielectric(double refraction_index) : refraction_index(refraction_index) 
 { 
     type = DIELECTRIC; 
 }
 
-bool dielectric::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+bool Dielectric::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
 {
     // Attenuation is always 1 (the glass surface absorbs nothing)
     auto attenuation = color(1.0, 1.0, 1.0);
@@ -127,7 +127,7 @@ bool dielectric::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<h
     return true;
 }
 
-double dielectric::reflectance(double cosine, double refraction_index)
+double Dielectric::reflectance(double cosine, double refraction_index)
 {
     // Use Schlick's approximation for reflectance.
     auto r0 = (1 - refraction_index) / (1 + refraction_index);
@@ -135,17 +135,17 @@ double dielectric::reflectance(double cosine, double refraction_index)
     return r0 + (1 - r0) * std::pow((1 - cosine), 5);
 }
 
-diffuse_light::diffuse_light(shared_ptr<Texture> texture) : texture(texture) 
+DiffuseLight::DiffuseLight(shared_ptr<Texture> texture) : texture(texture) 
 { 
     type = DIFFUSE_LIGHT; 
 }
 
-diffuse_light::diffuse_light(const color& emit) : texture(make_shared<solid_color>(emit)) 
+DiffuseLight::DiffuseLight(const color& emit) : texture(make_shared<SolidColor>(emit)) 
 { 
     type = DIFFUSE_LIGHT; 
 }
 
-color diffuse_light::emitted(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec) const
+color DiffuseLight::emitted(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec) const
 {
     if (!rec->front_face)
         return color(0, 0, 0);
@@ -153,17 +153,17 @@ color diffuse_light::emitted(const shared_ptr<Ray>& incoming_ray, const shared_p
     return texture->value(rec->texture_coordinates, rec->p);
 }
 
-isotropic::isotropic(const color& albedo) : texture(make_shared<solid_color>(albedo)) 
+Isotropic::Isotropic(const color& albedo) : texture(make_shared<SolidColor>(albedo)) 
 { 
     type = ISOTROPIC; 
 }
 
-isotropic::isotropic(shared_ptr<Texture> texture) : texture(texture) 
+Isotropic::Isotropic(shared_ptr<Texture> texture) : texture(texture) 
 { 
     type = ISOTROPIC; 
 }
 
-bool isotropic::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
+bool Isotropic::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, scatter_record& srec) const
 {
     srec.is_specular = false;
     srec.specular_ray = nullptr;
@@ -173,7 +173,7 @@ bool isotropic::scatter(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hi
     return true;
 }
 
-double isotropic::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
+double Isotropic::scattering_pdf_value(const shared_ptr<Ray>& incoming_ray, const shared_ptr<hit_record>& rec, const shared_ptr<Ray>& scattered_ray) const
 {
     return 1 / (4 * pi);
 }

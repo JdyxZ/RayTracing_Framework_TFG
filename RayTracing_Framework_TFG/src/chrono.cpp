@@ -1,4 +1,4 @@
-// Headers 
+﻿// Headers 
 #include "core.hpp"
 #include "chrono.hpp"
 
@@ -79,37 +79,5 @@ Chrono Chrono::operator+(const Chrono& c) const
     Chrono result = *this;
     result += c;
     return result;
-}
-
-shared_ptr<Chrono>& operator+=(shared_ptr<Chrono>& lhs, const shared_ptr<Chrono>& rhs)
-{
-    if (!lhs)
-    {
-        Logger::error("Chrono", "Left hand side chrono is null!!! Returning new empty chrono.");
-        lhs = make_shared<Chrono>();
-    }
-
-    if (!rhs)
-        Logger::error("Chrono", "Right hand side chrono is null!!! Returning lhs chrono.");
-    else
-        *lhs += *rhs;
-        
-    return lhs;
-}
-
-shared_ptr<Chrono> operator+(const shared_ptr<Chrono>& lhs, const shared_ptr<Chrono>& rhs)
-{
-    if (!lhs)
-    {
-        Logger::error("Chrono", "Left hand side chrono is null!!! Returning rhs chrono if possible or null.");
-        return rhs ? make_shared<Chrono>(*rhs) : nullptr;
-    }
-    if (!rhs)
-    {
-        Logger::error("Chrono", "Right hand side chrono is null!!! Returning lhs chrono if possible our null.");
-        return make_shared<Chrono>(*lhs); 
-    }
-
-    return make_shared<Chrono>(*lhs + *rhs);
 }
 

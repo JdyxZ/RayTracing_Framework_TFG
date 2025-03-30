@@ -22,17 +22,17 @@ Quad::Quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<Material> m
 void Quad::set_bounding_box()
 {
     // Compute the bounding box of all four vertices.
-    auto bbox_diagonal1 = aabb(Q, Q + u + v);
-    auto bbox_diagonal2 = aabb(Q + u, Q + v);
-    bbox = make_shared<aabb>(bbox_diagonal1, bbox_diagonal2);
+    auto bbox_diagonal1 = AABB(Q, Q + u + v);
+    auto bbox_diagonal2 = AABB(Q + u, Q + v);
+    bbox = make_shared<AABB>(bbox_diagonal1, bbox_diagonal2);
 }
 
-shared_ptr<aabb> Quad::bounding_box() const
+shared_ptr<AABB> Quad::bounding_box() const
 { 
     return bbox; 
 }
 
-bool Quad::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool Quad::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     auto denom = dot(normal, r->direction());
 
@@ -56,7 +56,7 @@ bool Quad::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>&
     auto beta = dot(w, cross(u, phit));
 
     // Check whether the intersection point is within the quad
-    if (!interval::unitary.contains(alpha) || !interval::unitary.contains(beta))
+    if (!Interval::unitary.contains(alpha) || !Interval::unitary.contains(beta))
         return false;
 
     // Hit record
@@ -78,7 +78,7 @@ double Quad::pdf_value(const point3& hit_point, const vec3& scattering_direction
     shared_ptr<hit_record> rec;
     auto ray = make_shared<Ray>(hit_point, scattering_direction);
 
-    if (!this->hit(ray, interval(0.001, infinity), rec))
+    if (!this->hit(ray, Interval(0.001, infinity), rec))
         return 0;
 
     auto distance_squared = rec->t * rec->t * scattering_direction.length_squared(); // light_hit_point - origin = t * direction

@@ -24,9 +24,9 @@ bvh_node::bvh_node(hittable_list list)
 bvh_node::bvh_node(vector<shared_ptr<Hittable>>& objects, size_t start, size_t end)
 {
     // Build the bounding box of the span of source objects.
-    bbox = make_shared<aabb>(aabb::empty);
+    bbox = make_shared<AABB>(AABB::empty);
     for (size_t object_index = start; object_index < end; object_index++)
-        bbox = make_shared<aabb>(bbox, objects[object_index]->bounding_box());
+        bbox = make_shared<AABB>(bbox, objects[object_index]->bounding_box());
 
     int axis = bbox->longest_axis();
 
@@ -69,18 +69,18 @@ bvh_node::bvh_node(vector<shared_ptr<Hittable>>& objects, size_t start, size_t e
     }
 }
 
-bool bvh_node::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool bvh_node::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     if (!bbox->hit(r, ray_t))
         return false;
 
     bool hit_left = left->hit(r, ray_t, rec);
-    bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec->t : ray_t.max), rec);
+    bool hit_right = right->hit(r, Interval(ray_t.min, hit_left ? rec->t : ray_t.max), rec);
 
     return hit_left || hit_right;
 }
 
-shared_ptr<aabb> bvh_node::bounding_box() const
+shared_ptr<AABB> bvh_node::bounding_box() const
 {
     return bbox;
 }
@@ -94,7 +94,7 @@ bool bvh_node::box_compare(const shared_ptr<Hittable>& a, const shared_ptr<Hitta
 {
     auto a_axis_interval = a->bounding_box()->axis_interval(axis_index);
     auto b_axis_interval = b->bounding_box()->axis_interval(axis_index);
-    return a_axis_interval.min < b_axis_interval.min;
+    return a_axis_interval->min < b_axis_interval->min;
 }
 
 bool bvh_node::box_x_compare(const shared_ptr<Hittable>& a, const shared_ptr<Hittable>& b)

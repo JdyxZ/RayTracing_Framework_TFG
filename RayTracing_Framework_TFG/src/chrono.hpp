@@ -33,6 +33,3 @@ private:
     optional<time_point> start_time;
     time_duration total_elapsed;
 };
-
-shared_ptr<Chrono>& operator+=(shared_ptr<Chrono>& lhs, const shared_ptr<Chrono>& rhs);
-shared_ptr<Chrono> operator+(const shared_ptr<Chrono>& lhs, const shared_ptr<Chrono>& rhs);

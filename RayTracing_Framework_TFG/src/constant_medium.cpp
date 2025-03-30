@@ -1,4 +1,4 @@
-// Headers
+﻿// Headers
 #include "core.hpp"
 #include "constant_medium.hpp"
 #include "ray.hpp"
@@ -8,19 +8,19 @@
 #include "aabb.hpp"
 
 constant_medium::constant_medium(shared_ptr<Hittable> boundary, double density, shared_ptr<Texture> tex) 
-    : boundary(boundary), neg_inv_density(-1 / density), phase_function(make_shared<isotropic>(tex)) { }
+    : boundary(boundary), neg_inv_density(-1 / density), phase_function(make_shared<Isotropic>(tex)) { }
 
 constant_medium::constant_medium(shared_ptr<Hittable> boundary, double density, const color& albedo)
-    : boundary(boundary), neg_inv_density(-1 / density), phase_function(make_shared<isotropic>(albedo)) { }
+    : boundary(boundary), neg_inv_density(-1 / density), phase_function(make_shared<Isotropic>(albedo)) { }
 
-bool constant_medium::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool constant_medium::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     shared_ptr<hit_record> rec1, rec2;
 
-    if (!boundary->hit(r, interval::universe, rec1))
+    if (!boundary->hit(r, Interval::universe, rec1))
         return false;
 
-    if (!boundary->hit(r, interval(rec1->t + 0.0001, infinity), rec2))
+    if (!boundary->hit(r, Interval(rec1->t + 0.0001, infinity), rec2))
         return false;
 
     if (rec1->t < ray_t.min) rec1->t = ray_t.min;
@@ -49,7 +49,7 @@ bool constant_medium::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<h
     return true;
 }
 
-shared_ptr<aabb> constant_medium::bounding_box() const 
+shared_ptr<AABB> constant_medium::bounding_box() const 
 { 
     return boundary->bounding_box(); 
 }

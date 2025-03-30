@@ -22,10 +22,10 @@ Triangle::Triangle(vertex A, vertex B, vertex C, shared_ptr<Material> material)
     // if (normal.length() < kEpsilon)
         // throw std::runtime_error("Triangle vertices are colinear");
 
-    bbox = make_shared<aabb>(A.position, B.position, C.position);
+    bbox = make_shared<AABB>(A.position, B.position, C.position);
 }
 
-bool Triangle::hit(const shared_ptr<Ray>& r, interval ray_t, shared_ptr<hit_record>& rec) const
+bool Triangle::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     // Calculate P vector and determinant
     vec3 P = cross(r->direction(), AC);
@@ -90,7 +90,7 @@ bool Triangle::has_vertex_normals() const
     return A.normal.has_value() && B.normal.has_value() && C.normal.has_value();
 }
 
-shared_ptr<aabb> Triangle::bounding_box() const
+shared_ptr<AABB> Triangle::bounding_box() const
 {
     return bbox;
 }
@@ -100,7 +100,7 @@ double Triangle::pdf_value(const point3& hit_point, const vec3& scattering_direc
     shared_ptr<hit_record> rec;
     auto ray = make_shared<Ray>(hit_point, scattering_direction);
 
-    if (!this->hit(ray, interval(0.001, infinity), rec))
+    if (!this->hit(ray, Interval(0.001, infinity), rec))
         return 0;
 
     auto distance_squared = rec->t * rec->t * scattering_direction.length_squared(); // light_hit_point - origin = t * direction
