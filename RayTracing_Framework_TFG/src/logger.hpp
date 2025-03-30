@@ -10,6 +10,17 @@ enum log_message_type
     _INFO
 };
 
+struct LogMessage
+{
+    string timestamp;
+    log_message_type type;
+    string location;
+    string description;
+
+    void print();
+    string str();
+};
+
 struct Logger
 {
 public:
@@ -19,14 +30,14 @@ public:
     static string error(string location, string description);
     static string warn(string location, string description);
     static string info(string location, string description);
-    static vector<string> messages();
+    static vector<LogMessage> messages();
     static void clear();
 
 private:
 
-    static vector<string> _messages;
+    static vector<LogMessage> _messages;
 
-    static string new_message(log_message_type type, string& location, string& description);
+    static LogMessage new_message(log_message_type type, string& location, string& description);
 };
 
 

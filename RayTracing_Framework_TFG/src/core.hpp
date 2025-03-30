@@ -1,4 +1,8 @@
-#pragma once
+﻿#pragma once
+
+// Macros
+#define NOMINMAX             // Prevent min/max macros
+#define WIN32_LEAN_AND_MEAN  // Reduce Windows.h bloat
 
 // External Headers
 #include <cmath>
@@ -18,6 +22,11 @@
 #include <vector>
 #include <array>
 #include <format>
+#include <list>
+#include <map>
+#include <type_traits>
+#include <utility>
+#include <windows.h>
 
 // C++ std usings
 using std::make_shared;
@@ -39,3 +48,4 @@ namespace fs = std::filesystem;
 #include "logger.hpp"
 #include "paths.hpp"
 #include "constants.hpp"
+

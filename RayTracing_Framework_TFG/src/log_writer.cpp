@@ -112,7 +112,7 @@ void LogWriter::write(const Scene& scene, const Camera& camera, const ImageWrite
     // Log messages
     log << "## Log 📋\n\n";
     for (auto message : Logger::messages())
-        log << message;
+        log << message.str();
 
     // Construct the log file
     std::string log_filename = logs_path + name + ".md";

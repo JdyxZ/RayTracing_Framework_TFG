@@ -1,32 +1,66 @@
-﻿// Headers
+﻿// Internal Headers
 #include "core.hpp"
 #include "logger.hpp"
 #include "utilities.hpp"
+
+// External Headers
+#include "../external/vibrant_console.hpp"
+
+void LogMessage::print()
+{
+    switch (type)
+    {
+    case(_ERROR):
+        std::cerr << timestamp << " " << dye::red("[ERROR]") << " " << location << " " << "-> " << description << std::endl;
+        break;
+    case(_WARNING):
+        std::clog << timestamp << " " << dye::yellow("[WARNING]") << " " << location << " " << "-> " << description << std::endl;
+        break;
+    case(_INFO):
+        std::cout << timestamp << " " << dye::green("[INFO]") << " " << location << " " << "-> " << description << std::endl;
+        break;
+    }
+}
+
+string LogMessage::str()
+{
+    switch (type)
+    {
+    case(_ERROR):
+        return timestamp + " [ERROR] " + location + " " + "-> " + description + "\n";
+    case(_WARNING):
+        return timestamp + " [WARNING] " + location + " " + "-> " + description + "\n";
+    case(_INFO):
+        return timestamp + " [INFO] " + location + " " + "-> " + description + "\n";
+    }
+
+    return "Error in parsing LogMessage to string";
+}
 
 Logger::Logger() {}
 
 string Logger::error(string location, string description)
 {
-    string message = new_message(_ERROR, location, description);
-    std::cerr << message;
-    return message;
+    LogMessage message = new_message(_ERROR, location, description);
+    message.print();
+    return message.str();
 }
 
 string Logger::warn(string location, string description)
 {
-    string message = new_message(_WARNING, location, description);
-    std::clog << message;
-    return message;
+    LogMessage message = new_message(_WARNING, location, description);
+    message.print();
+    return message.str();
 }
 
 string Logger::info(string location, string description)
 {
-    string message = new_message(_INFO, location, description);
-    std::cout << message;
-    return message;
+    LogMessage message = new_message(_INFO, location, description);
+    message.print();
+    return message.str();
 }
 
-vector<string> Logger::messages()
+vector<LogMessage> Logger::messages()
 {
     return _messages;
 }
@@ -36,32 +70,21 @@ void Logger::clear()
     _messages.clear();
 }
 
-string Logger::new_message(log_message_type type, string& location, string& description)
+LogMessage Logger::new_message(log_message_type type, string& location, string& description)
 {
+    LogMessage message;
+
     string timestamp = get_current_timestamp("%d/%m/%Y %X", true);
 
-    std::ostringstream message;
+    message.timestamp = "[" + timestamp + "]";
+    message.type = type;
+    message.location = "[" + location + "]";
+    message.description = "\"" + description + "\"";
 
-    message << "[" << timestamp << "] ";
-    switch (type)
-    {
-    case _ERROR:
-        message << "[ERROR] ";
-        break;
-    case _WARNING:
-        message << "[WARNING] ";
-        break;
-    case _INFO:
-        message << "[INFO] ";
-        break;
-    }
-    message << "[" << location << "] ";
-    message << "-> \"" << description << "\" \n";
-
-    _messages.push_back(message.str());
-    return message.str();
+    _messages.push_back(message);
+    return message;
 }
 
 // Static members
-vector<string> Logger::_messages;
+vector<LogMessage> Logger::_messages;
 
