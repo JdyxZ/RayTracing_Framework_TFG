@@ -54,14 +54,13 @@ void Camera::initialize(const Scene& scene, const ImageWriter& image)
     pixel_sample_sqrt_inv = 1.0 / pixel_sample_sqrt;
 
     // Log info
-    Logger::info("CAMERA", "Camera settings succesfully initialized");
+    Logger::info("CAMERA", "Camera settings succesfully initialized.");
 }
 
 void Camera::render(Scene& scene, ImageWriter& image)
 {
     // Log info
-    string info = std::format("Rendering started. Using {} samples per pixel, resolution {}x{}, and {} bounces per ray.", scene.samples_per_pixel, image.width, image.height, scene.bounce_max_depth);
-    Logger::info("CAMERA", info);
+    Logger::info("CAMERA", "Rendering started.");
 
     // Calculate primary rays to cast
     primary_rays = image.height * image.width * pixel_sample_sqrt * pixel_sample_sqrt;

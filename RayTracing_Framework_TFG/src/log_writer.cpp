@@ -16,9 +16,6 @@
 
 LogWriter::LogWriter()
 {
-    // Define name based on timestamp
-    name = get_current_timestamp();
-
     // Create directory for logs in case it does not already exist
     string folderPath = logs_directory + "\\";
     fs::create_directories(folderPath);
@@ -26,8 +23,11 @@ LogWriter::LogWriter()
 
 void LogWriter::write(const Scene& scene, const Camera& camera, const ImageWriter& image)
 {
+    // Define name based on timestamp
+    string name = get_current_timestamp();
+
     // Log info
-    Logger::info("LogWriter", "Writing log file started. Saving rendering statistics and debug information to " + name + ".md");
+    Logger::info("LogWriter", "Writing log file started.");
 
     // Create log
     std::ostringstream log;

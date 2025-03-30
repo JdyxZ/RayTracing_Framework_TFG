@@ -13,8 +13,5 @@ struct LogWriter
     LogWriter();
 
     void write(const Scene& scene, const Camera& camera, const ImageWriter& image);
-
-private:
-    string name;
 };
 

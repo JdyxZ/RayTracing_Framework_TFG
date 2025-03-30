@@ -1,4 +1,4 @@
-// Internal Headers
+﻿// Internal Headers
 #include "core.hpp"
 #include "image_writer.hpp"
 #include "utilities.hpp"
@@ -55,7 +55,7 @@ void ImageWriter::initialize()
     data.resize(3 * width * height);
 
     // Log info
-    Logger::info("ImageWriter", "Image frame succesfully initialized");
+    Logger::info("ImageWriter", "Image frame succesfully initialized.");
 }
 
 void ImageWriter::write_pixel(int pixel_position, tuple<int, int, int> RGB_color)
@@ -91,7 +91,7 @@ void ImageWriter::save()
     if (success)
         Logger::info("ImageWriter", "Image successfully written: " + fmt_name);
     else
-        Logger::info("ImageWriter", "Failed to write image: " + fmt_name);
+        Logger::error("ImageWriter", "Failed to write image: " + fmt_name);
 
     size = make_shared<file_size>(get_file_size(image_path));
 }

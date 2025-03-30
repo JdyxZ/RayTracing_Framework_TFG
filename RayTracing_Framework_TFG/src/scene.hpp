@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // Headers
 #include "hittable_list.hpp"
@@ -8,6 +8,8 @@
 // Forward declarations
 class Mesh;
 struct Chrono;
+class Camera;
+class ImageWriter;
 
 class Scene : public hittable_list
 {
@@ -56,6 +58,7 @@ public:
     void start();
     void end();
     void add(shared_ptr<Hittable> object) override;
+    void build(Camera& camera, ImageWriter& image);
 };
 
 

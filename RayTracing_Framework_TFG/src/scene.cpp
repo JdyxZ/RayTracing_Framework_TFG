@@ -9,6 +9,9 @@
 #include "mesh.hpp"
 #include "bvh.hpp"
 #include "material.hpp"
+#include "camera.hpp"
+#include "image_writer.hpp"
+#include "scenes.hpp"
 
 Scene::Scene()
 {
@@ -86,4 +89,64 @@ void Scene::add(shared_ptr<Hittable> object)
         break;
     }
     }
+}
+
+void Scene::build(Camera& camera, ImageWriter& image)
+{
+    // Log info
+    Logger::info("MAIN", "Scene build started.");
+
+    // Start scene build time chrono
+    this->build_chrono->start();
+
+    // Choose rendering scene
+    switch (7)
+    {
+    case 0:
+        book1_final_scene(*this, camera, image);
+        break;
+    case 1:
+        bouncing_spheres(*this, camera, image);
+        break;
+    case 2:
+        checkered_spheres(*this, camera, image);
+        break;
+    case 3:
+        earth(*this, camera, image);
+        break;
+    case 4:
+        perlin_spheres(*this, camera, image);
+        break;
+    case 5:
+        quads_scene(*this, camera, image);
+        break;
+    case 6:
+        simple_light(*this, camera, image);
+        break;
+    case 7:
+        cornell_box(*this, camera, image);
+        break;
+    case 8:
+        cornell_smoke(*this, camera, image);
+        break;
+    case 9:
+        book2_final_scene(*this, camera, image);
+        break;
+    case 10:
+        obj_test(*this, camera, image);
+        break;
+    }
+
+    // Boost scene render with BVH
+    auto BVH_tree = make_shared<bvh_node>(*this);
+    clear();
+    add(BVH_tree);
+    bvh_depth = BVH_tree->depth;
+    bvh_nodes = BVH_tree->nodes;
+
+    // End scene build time chrono
+    build_chrono->end();
+
+    // Info log
+    Logger::info("Main", "Scene build completed.");
 }
