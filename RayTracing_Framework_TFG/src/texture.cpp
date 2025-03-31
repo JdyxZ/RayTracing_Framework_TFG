@@ -23,9 +23,9 @@ CheckerTexture::CheckerTexture(double scale, const color& c1, const color& c2)
 
 color CheckerTexture::value(pair<double, double> texture_coordinates, const point3& p) const
 {
-    auto x = int(floor(inv_scale * p.x()));
-    auto y = int(floor(inv_scale * p.y()));
-    auto z = int(floor(inv_scale * p.z()));
+    auto x = int(floor(inv_scale * p.x));
+    auto y = int(floor(inv_scale * p.y));
+    auto z = int(floor(inv_scale * p.z));
 
     bool isEven = (x + y + z) % 2 == 0;
 
@@ -73,5 +73,5 @@ NoiseTexture::NoiseTexture(double scale, int depth) : scale(scale), depth(depth)
 
 color NoiseTexture::value(pair<double, double> texture_coordinates, const point3& p) const
 {
-    return color(.5, .5, .5) * (1 + std::sin(scale * p.z() + 10 * noise->turbulance(p, depth)));
+    return color(.5, .5, .5) * (1 + std::sin(scale * p.z + 10 * noise->turbulance(p, depth)));
 }

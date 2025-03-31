@@ -2,7 +2,7 @@
 
 // Headers
 #include "core.hpp"
-#include "vec3.hpp"
+#include "vec.hpp"
 
 // ************** TIMESTAMP UTILITIES ************** //
 
@@ -23,6 +23,7 @@ file_size get_file_size(const string& file_path);
 
 string to_list(const vector<string>& vec);
 string trim(const string& str);
+string trim_trailing_zeros(const double number, const bool remove_point = true);
 
 // ************** MATH UTILITIES ************** //
 

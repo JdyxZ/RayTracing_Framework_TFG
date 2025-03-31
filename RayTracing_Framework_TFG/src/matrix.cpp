@@ -1,8 +1,14 @@
 ﻿// Headers
 #include "core.hpp"
 #include "matrix.hpp"
+#include "utilities.hpp"
 
 // Constructors
+Matrix::Matrix() 
+{
+    *this = Matrix::identity(4);
+}
+
 Matrix::Matrix(unsigned num_rows, unsigned num_columns, double initial)
 {
     if ((num_rows < 2 && num_columns < 2) || num_rows == 0 || num_columns == 0)
@@ -17,11 +23,103 @@ Matrix::Matrix(unsigned num_rows, unsigned num_columns, double initial)
 }
 
 Matrix44::Matrix44(double initial) : Matrix(4, 4, initial) {}
+
+Matrix44::Matrix44(const Matrix& matrix) : Matrix(matrix)
+{
+    int num_rows = matrix.get_num_rows();
+    int num_columns = matrix.get_num_columns();
+
+    if (num_rows != 4 || num_columns != 4)
+    {
+        string error = Logger::error("Matrix", std::format("Invalid cast exception! You are trying to convert a Matrix into a Matrix44 but Matrix is {}x{} and not 4x4", num_rows, num_columns));
+        throw std::invalid_argument(error);
+    }
+}
+
+Matrix44::Matrix44
+(
+    double m00, double m01, double m02, double m03,
+    double m10, double m11, double m12, double m13,
+    double m20, double m21, double m22, double m23,
+    double m30, double m31, double m32, double m33
+) 
+    : Matrix(4, 4)
+{
+    (*this)[0][0] = m00; (*this)[0][1] = m01; (*this)[0][2] = m02; (*this)[0][3] = m03;
+    (*this)[1][0] = m10; (*this)[1][1] = m11; (*this)[1][2] = m12; (*this)[1][3] = m13;
+    (*this)[2][0] = m20; (*this)[2][1] = m21; (*this)[2][2] = m22; (*this)[2][3] = m23;
+    (*this)[3][0] = m30; (*this)[3][1] = m31; (*this)[3][2] = m32; (*this)[3][3] = m33;
+}
+
+Matrix44 Matrix44::identity()
+{
+    return Matrix::identity(4);
+}
+
 Matrix33::Matrix33(double initial) : Matrix(3, 3, initial) {}
+
+Matrix33::Matrix33(const Matrix& matrix) : Matrix(matrix)
+{
+    int num_rows = matrix.get_num_rows();
+    int num_columns = matrix.get_num_columns();
+
+    if (num_rows != 3 || num_columns != 3)
+    {
+        string error = Logger::error("Matrix", std::format("Invalid cast exception! You are trying to convert a Matrix into a Matrix33 but Matrix is {}x{} and not 3x3", num_rows, num_columns));
+        throw std::invalid_argument(error);
+    }
+}
+
+Matrix33::Matrix33
+(
+    double m00, double m01, double m02, 
+    double m10, double m11, double m12, 
+    double m20, double m21, double m22
+)
+    : Matrix(3, 3)
+{
+    (*this)[0][0] = m00; (*this)[0][1] = m01; (*this)[0][2] = m02;
+    (*this)[1][0] = m10; (*this)[1][1] = m11; (*this)[1][2] = m12;
+    (*this)[2][0] = m20; (*this)[2][1] = m21; (*this)[2][2] = m22;
+}
+
+Matrix33 Matrix33::identity()
+{
+    return Matrix::identity(3);
+}
+
 Matrix22::Matrix22(double initial) : Matrix(2, 2, initial) {}
 
+Matrix22::Matrix22(const Matrix& matrix) : Matrix(matrix)
+{
+    int num_rows = matrix.get_num_rows();
+    int num_columns = matrix.get_num_columns();
+
+    if (num_rows != 2 || num_columns != 2)
+    {
+        string error = Logger::error("Matrix", std::format("Invalid cast exception! You are trying to convert a Matrix into a Matrix22 but Matrix is {}x{} and not 2x2", num_rows, num_columns));
+        throw std::invalid_argument(error);
+    }
+}
+
+Matrix22::Matrix22
+(
+    double m00, double m01, 
+    double m10, double m11
+)
+    : Matrix(2, 2)
+{
+    (*this)[0][0] = m00; (*this)[0][1] = m01;
+    (*this)[1][0] = m10; (*this)[1][1] = m11;
+}
+
+Matrix22 Matrix22::identity()
+{
+    return Matrix::identity(2);
+}
+
 // Matrix operations
-Matrix Matrix::identity(unsigned size) const
+Matrix Matrix::identity(unsigned size)
 {
     Matrix result(size, size, 0.0);
 
@@ -344,10 +442,31 @@ Matrix& Matrix::operator/=(const double scalar)
     return *this;
 }
 
+std::ostream& operator<<(std::ostream& out, const Matrix& m)
+{
+    out << std::endl;
+
+    for (unsigned i = 0; i < m.get_num_rows(); i++)
+    {
+        out << "| ";
+
+        for (unsigned j = 0; j < m.get_num_columns(); j++)
+        {
+             out << std::setw(8) << std::setprecision(3) << m[i][j];
+
+             if (j == m.get_num_columns() - 1)
+                 out << std::setw(8);               
+        }
+        out << " |" << std::endl;
+    }
+
+    return out;
+}
+
 // Help methods
 void Matrix::print() const
 {
-    std::cout << "Matrix: " << std::endl;
+    std::cout << "Matrix: " << std::endl << std::endl;
     for (unsigned i = 0; i < num_rows; i++)
     {
         for (unsigned j = 0; j < num_columns; j++)
@@ -382,4 +501,3 @@ unsigned Matrix::get_num_columns() const
 {
     return num_columns;
 }
-

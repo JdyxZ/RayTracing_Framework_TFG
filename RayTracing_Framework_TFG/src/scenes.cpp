@@ -14,7 +14,7 @@
 #include "bvh.hpp"
 #include "mesh.hpp"
 #include "perlin.hpp"
-#include "vec3.hpp"
+#include "vec.hpp"
 #include "color.hpp"
 #include "utilities.hpp"
 #include "hittable_transform.hpp"
@@ -22,7 +22,7 @@
 #include "constant_medium.hpp"
 #include "chrono.hpp"
 
-void book1_final_scene_creation(Scene& scene, bool blur_motion)
+void scenes::book1_final_scene_creation(Scene& scene, bool blur_motion)
 {
     // Materials
     auto material_ground = make_shared<Lambertian>(color(0.5, 0.5, 0.5));
@@ -101,7 +101,7 @@ void book1_final_scene_creation(Scene& scene, bool blur_motion)
     // scene1.add(triangle1);
 }
 
-void book1_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::book1_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.width = 1200;
@@ -121,7 +121,7 @@ void book1_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
     book1_final_scene_creation(scene);
 }
 
-void bouncing_spheres(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::bouncing_spheres(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.width = 1200;
@@ -141,7 +141,7 @@ void bouncing_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     book1_final_scene_creation(scene, true);
 }
 
-void checkered_spheres(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::checkered_spheres(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Camera settings
     camera.vertical_fov = 20;
@@ -165,7 +165,7 @@ void checkered_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(sphere2);
 }
 
-void earth(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::earth(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Camera settings
     camera.vertical_fov = 20;
@@ -190,7 +190,7 @@ void earth(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(globe);
 }
 
-void perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Camera settings
     camera.vertical_fov = 20;
@@ -217,7 +217,7 @@ void perlin_spheres(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(sphere2);
 }
 
-void quads_scene(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::quads(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
@@ -254,7 +254,7 @@ void quads_scene(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad5);
 }
 
-void simple_light(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::simple_light(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
@@ -293,11 +293,11 @@ void simple_light(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad1);
 }
 
-void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
-    image.width = 600;
+    image.width = 500;
 
     // Camera settings
     camera.vertical_fov = 40;
@@ -328,14 +328,21 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
 
     // Boxes
-    shared_ptr<Hittable> box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white);
-    shared_ptr<Hittable> box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white);
+    shared_ptr<Box> box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white);
+    shared_ptr<Box> box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white);
 
     // Transformations
+    box1->rotate(y_axis, degrees_to_radians(15.0));
+    box1->translate(vec3(265, 0, 295));
+    box2->rotate(y_axis, degrees_to_radians(-18.0));
+    box2->translate(vec3(130, 0, 65));
+
+    /*
     box1 = make_shared<rotate>(box1, y_axis, -15.0);
     box1 = make_shared<translate>(box1, vec3(265, 0, 295));
     box2 = make_shared<rotate>(box2, y_axis, 18.0);
     box2 = make_shared<translate>(box2, vec3(130, 0, 65));
+    */
 
     // Glass Sphere
     auto sphere1 = make_shared<Sphere>(point3(190, 90, 190), 90, glass, true);
@@ -350,13 +357,13 @@ void cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad4);
     scene.add(quad5);
     scene.add(quad6);
-    // scene.add(box1);
+    scene.add(box1);
     // scene.add(box2);
     scene.add(sphere1);
     if (mesh) scene.add(mesh);
 }
 
-void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
@@ -411,7 +418,7 @@ void cornell_smoke(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(box2);
 }
 
-void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
@@ -517,7 +524,7 @@ void book2_final_scene(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(transformed_spheres_bvh_tree);
 }
 
-void obj_test(Scene& scene, Camera& camera, ImageWriter& image)
+void scenes::obj_test(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;

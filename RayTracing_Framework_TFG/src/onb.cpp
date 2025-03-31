@@ -7,7 +7,7 @@
 ONB::ONB(const vec3& n)
 {
     // Assume n is a unit vector!!!
-    vec3 a = (fabs(n.x()) > 0.9) ? y_axis : x_axis;
+    vec3 a = (fabs(n.x) > 0.9) ? y_axis : x_axis;
 
     vec3 w = n;
     vec3 v = cross(w, a);

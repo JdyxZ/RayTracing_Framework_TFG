@@ -8,7 +8,7 @@
 #include "material.hpp"
 #include "texture.hpp"
 #include "hittable_list.hpp"
-#include "vec3.hpp"
+#include "vec.hpp"
 
 // Macros
 #define TINYOBJLOADER_IMPLEMENTATION

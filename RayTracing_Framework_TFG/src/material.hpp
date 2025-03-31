@@ -2,7 +2,7 @@
 
 // Headers
 #include "core.hpp"
-#include "vec3.hpp"
+#include "vec.hpp"
 
 // Forward declarations
 class Ray;

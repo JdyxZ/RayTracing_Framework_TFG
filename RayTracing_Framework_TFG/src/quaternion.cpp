@@ -12,15 +12,15 @@ Quaternion::Quaternion(const vec3& axis, const double angle)
     // 
     // angle = 0
     // axis_quaterion = (0, x, y, z)​
-    // rotation_quaterion = cos(θ/2) ​+ (xi + yj + zk) sin(θ/2) = (cos(θ/2), sin(θ/2)x, sin(θ/2)y, sin(θ/2)z)
+    // rotation_quaterion = cos(θ/2)w ​+ (0w + xi + yj + zk) sin(θ/2) = (cos(θ/2), sin(θ/2)x, sin(θ/2)y, sin(θ/2)z)
 
     double half_angle = angle * 0.5;
     double sin_half = sin(half_angle);
 
     w = cos(half_angle);
-    i = axis.x() * sin_half;
-    j = axis.y() * sin_half;
-    k = axis.z() * sin_half;
+    i = axis.x * sin_half;
+    j = axis.y * sin_half;
+    k = axis.z * sin_half;
 }
 
 Quaternion Quaternion::identity() 
@@ -79,27 +79,6 @@ void Quaternion::normalize()
     }
 }
 
-Quaternion normalize(Quaternion q)
-{
-    // Unit quaterion rule (w^2 + i^2 + j^2 + k^2 = 1)
-    double norm = sqrt(q.w * q.w + q.i * q.i + q.j * q.j + q.k * q.k);
-
-    if (norm > 0.0)
-    {
-        q.w /= norm;
-        q.i /= norm;
-        q.j /= norm;
-        q.k /= norm;
-    }
-
-    return q;
-}
-
-double dot(const Quaternion& q1, const Quaternion& q2)
-{
-    return q1.w * q2.w + q1.i * q2.i + q1.j * q2.j + q1.k * q2.k;
-}
-
 vec3 Quaternion::rotate(const vec3& v) const
 {
     return rotate3D(*this, v, conjugate());
@@ -108,14 +87,9 @@ vec3 Quaternion::rotate(const vec3& v) const
 vec3 rotate3D(const Quaternion& q, const vec3& v, const Quaternion& q_inv)
 {
     // 3D rotation with quaternions follos the formula v' = q * v * q^-1 (rotated_vector_quaternion = rotation_quaternion * vector_quaterion * rotation_quaternion_conjugate)
-    Quaternion q_v(0, v.x(), v.y(), v.z());
+    Quaternion q_v(0, v.x, v.y, v.z);
     Quaternion rotated = q * q_v * q_inv;
     return vec3(rotated.i, rotated.j, rotated.k);
-}
-
-vec3 rotate3D(const shared_ptr<Quaternion>& q, const vec3& v, const shared_ptr<Quaternion>& q_inv)
-{
-    return rotate3D(*q, v, *q_inv);
 }
 
 // Quaternion SLERP (Smooth Rotation Interpolation)

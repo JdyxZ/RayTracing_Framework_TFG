@@ -103,37 +103,37 @@ void Scene::build(Camera& camera, ImageWriter& image)
     switch (7)
     {
     case 0:
-        book1_final_scene(*this, camera, image);
+        scenes::book1_final_scene(*this, camera, image);
         break;
     case 1:
-        bouncing_spheres(*this, camera, image);
+        scenes::bouncing_spheres(*this, camera, image);
         break;
     case 2:
-        checkered_spheres(*this, camera, image);
+        scenes::checkered_spheres(*this, camera, image);
         break;
     case 3:
-        earth(*this, camera, image);
+        scenes::earth(*this, camera, image);
         break;
     case 4:
-        perlin_spheres(*this, camera, image);
+        scenes::perlin_spheres(*this, camera, image);
         break;
     case 5:
-        quads_scene(*this, camera, image);
+        scenes::quads(*this, camera, image);
         break;
     case 6:
-        simple_light(*this, camera, image);
+        scenes::simple_light(*this, camera, image);
         break;
     case 7:
-        cornell_box(*this, camera, image);
+        scenes::cornell_box(*this, camera, image);
         break;
     case 8:
-        cornell_smoke(*this, camera, image);
+        scenes::cornell_smoke(*this, camera, image);
         break;
     case 9:
-        book2_final_scene(*this, camera, image);
+        scenes::book2_final_scene(*this, camera, image);
         break;
     case 10:
-        obj_test(*this, camera, image);
+        scenes::obj_test(*this, camera, image);
         break;
     }
 

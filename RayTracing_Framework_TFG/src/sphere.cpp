@@ -109,8 +109,8 @@ pair<double, double> Sphere::get_sphere_uv(const point3& p)
     // u: returned value [0,1] of angle around the Y axis from X=-1.
     // v: returned value [0,1] of angle from Y=-1 to Y=+1.
 
-    auto theta = std::acos(-p.y());
-    auto phi = std::atan2(-p.z(), p.x()) + pi;
+    auto theta = std::acos(-p.y);
+    auto phi = std::atan2(-p.z, p.x) + pi;
 
     return make_pair(phi / (2 * pi), theta / pi);
 }

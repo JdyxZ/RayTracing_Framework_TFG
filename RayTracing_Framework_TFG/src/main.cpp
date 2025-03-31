@@ -1,4 +1,5 @@
 ﻿// Headers
+#include "core.hpp"
 #include "logger.hpp"
 #include "scene.hpp"
 #include "camera.hpp"

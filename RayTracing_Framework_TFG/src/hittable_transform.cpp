@@ -56,8 +56,8 @@ rotate::rotate(shared_ptr<Hittable> object, vec3 axis, double angle) : object(ob
 bool rotate::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
 {
     // Transform the ray from world space to object space using rotation quaternion
-    vec3 rotated_origin = rotate3D(rotation_quat, r->origin(), inverse_rotation_quat);
-    vec3 rotated_direction = rotate3D(rotation_quat, r->direction(), inverse_rotation_quat);
+    vec3 rotated_origin = *rotation_quat * r->origin();
+    vec3 rotated_direction = *rotation_quat * r->direction();
     auto rotated_ray = make_shared<Ray>(rotated_origin, rotated_direction, r->time());
 
     // Determine if the rotated ray hits the object
@@ -65,8 +65,8 @@ bool rotate::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record
         return false;
 
     // Transform the intersection point and normal back to world space
-    rec->p = rotate3D(inverse_rotation_quat, rec->p, rotation_quat);
-    rec->normal = rotate3D(inverse_rotation_quat, rec->normal, rotation_quat);
+    rec->p = *inverse_rotation_quat * rec->p;
+    rec->normal = *inverse_rotation_quat * rec->normal;
 
     return true;
 }
@@ -96,7 +96,7 @@ shared_ptr<AABB> rotate::compute_rotated_bbox() const
                 double z = k * original_bbox->z->max + (1 - k) * original_bbox->z->min;
 
                 // Rotate the corner point
-                vec3 rotated_corner = rotate3D(rotation_quat, point3(x, y, z), inverse_rotation_quat);
+                vec3 rotated_corner = *rotation_quat * point3(x, y, z);
 
                 // Update the new bounding box
                 for (int c = 0; c < 3; c++)
@@ -131,7 +131,7 @@ bool scale::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>
     rec->p *= scale_factor;
 
     // Correct the normal using inverse transpose scaling
-    rec->normal = (rec->normal / scale_factor).normalize();
+    rec->normal = (rec->normal * scale_factor).normalize();
 
     return true;
 }

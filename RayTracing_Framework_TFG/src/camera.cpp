@@ -122,8 +122,8 @@ const shared_ptr<Ray> Camera::get_ray_sample(int pixel_row, int pixel_column, in
     auto offset = sample_square_stratified(sample_row, sample_column, pixel_sample_sqrt_inv);
 
     auto pixel_sample = pixel00_loc
-        + ((pixel_row + offset.y()) * pixel_delta_v)
-        + ((pixel_column + offset.x()) * pixel_delta_u);
+        + ((pixel_row + offset.y) * pixel_delta_v)
+        + ((pixel_column + offset.x) * pixel_delta_u);
 
     auto ray_origin = (defocus_angle <= 0) ? lookfrom : defocus_disk_sample(lookfrom, defocus_disk_u, defocus_disk_v);
     auto ray_direction = pixel_sample - ray_origin;
@@ -262,7 +262,7 @@ color Camera::sky_blend(const shared_ptr<Ray>& r) const
 {
     vec3 unit_direction = unit_vector(r->direction());
 
-    auto a = 0.5 * (unit_direction.y() + 1.0);
+    auto a = 0.5 * (unit_direction.y + 1.0);
     color start_color = WHITE;
     color end_color = SKY_BLUE;
 

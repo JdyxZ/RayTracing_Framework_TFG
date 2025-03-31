@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // Headers
-#include "vec3.hpp"
+#include "vec.hpp"
 #include "interval.hpp"
 
 // Forward declarations
@@ -32,7 +32,7 @@ private:
 // Operator overloads
 inline AABB operator+(const AABB& bbox, const vec3& offset)
 {
-    return AABB(*bbox.x + offset.x(), *bbox.y + offset.y(), *bbox.z + offset.z());
+    return AABB(*bbox.x + offset.x, *bbox.y + offset.y, *bbox.z + offset.z);
 }
 
 inline AABB operator+(const vec3& offset, const AABB& bbox)
@@ -42,7 +42,7 @@ inline AABB operator+(const vec3& offset, const AABB& bbox)
 
 inline AABB operator*(const AABB& bbox, const vec3& offset)
 {
-    return AABB(*bbox.x * offset.x(), *bbox.y * offset.y(), *bbox.z * offset.z());
+    return AABB(*bbox.x * offset.x, *bbox.y * offset.y, *bbox.z * offset.z);
 }
 
 inline AABB operator*(const vec3& offset, const AABB& bbox)

@@ -2,7 +2,7 @@
 
 // Headers
 #include "core.hpp"
-#include "vec3.hpp"
+#include "vec.hpp"
 #include "logger.hpp"
 
 class Matrix
@@ -10,10 +10,10 @@ class Matrix
 public:
     // Constructors & Destructor
     Matrix(unsigned num_rows, unsigned num_columns, double initial = 0.0);
-    ~Matrix() = default;
+    virtual ~Matrix() = default;
 
     // Matrix Operations
-    Matrix identity(unsigned size) const;
+    static Matrix identity(unsigned size);
     Matrix transpose() const;
     double determinant() const;
     Matrix inverse() const;
@@ -38,6 +38,7 @@ public:
     Matrix& operator-=(const double scalar);
     Matrix& operator*=(const double scalar);
     Matrix& operator/=(const double scalar);
+    friend std::ostream& operator<<(std::ostream& out, const Matrix& m);
 
     // Helper Functions
     void print() const;
@@ -51,24 +52,53 @@ private:
     unsigned num_rows;
     unsigned num_columns;
     vector<vector<double>> values;
+
+    Matrix();
 };
 
 class Matrix44 : public Matrix
 {
 public:
-    Matrix44(double initial);
+    Matrix44(double initial = 0.0);
+    Matrix44(const Matrix& m); // Conversion constructor
+    Matrix44
+    (
+        double m00, double m01, double m02, double m03,
+        double m10, double m11, double m12, double m13,
+        double m20, double m21, double m22, double m23,
+        double m30, double m31, double m32, double m33
+    );
+
+    static Matrix44 identity();
 };
 
 class Matrix33 : public Matrix
 {
 public:
-    Matrix33(double initial);
+    Matrix33(double initial = 0.0);
+    Matrix33(const Matrix& m); // Conversion constructor
+    Matrix33
+    (
+        double m00, double m01, double m02,
+        double m10, double m11, double m12,
+        double m20, double m21, double m22
+    );
+
+    static Matrix33 identity();
 };
 
 class Matrix22 : public Matrix
 {
 public:
-    Matrix22(double initial);
+    Matrix22(double initial = 0.0);
+    Matrix22(const Matrix& m);  // Conversion constructor
+    Matrix22
+    (
+        double m00, double m01,
+        double m10, double m11
+    );
+
+    static Matrix22 identity();
 };
 
 // ************ Non-member operator overloads ************ //
@@ -185,50 +215,6 @@ inline vector<double> operator*(const vector<double>& v, const Matrix& M)
     return result;
 }
 
-inline vector<double> operator*(const Matrix& M, const vec3& v)
-{
-    if (M.get_num_columns() != 3)
-    {
-        string error = Logger::error("MATRIX", "Matrix columns must be 3 for multiplication with vec3");
-        throw std::invalid_argument(error);
-    }
-
-    vector<double> result(M.get_num_rows(), 0.0);
-
-    for (unsigned i = 0; i < M.get_num_rows(); ++i)
-    {
-        result[i] = 0.0;
-        for (unsigned j = 0; j < M.get_num_columns(); ++j)
-        {
-            result[i] += M[i][j] * v[j];
-        }
-    }
-
-    return result;
-}
-
-inline vector<double> operator*(const vec3& v, const Matrix& M)
-{
-    if (M.get_num_rows() != 3)
-    {
-        string error = Logger::error("MATRIX", "Matrix rows must be 3 for multiplication with vec3");
-        throw std::invalid_argument(error);
-    }
-
-    vector<double> result(M.get_num_columns(), 0.0);
-
-    for (unsigned j = 0; j < M.get_num_columns(); ++j)
-    {
-        result[j] = 0.0;
-        for (unsigned i = 0; i < M.get_num_rows(); ++i)
-        {
-            result[j] += v[i] * M[i][j];
-        }
-    }
-
-    return result;
-}
-
 // Scalar operators
 inline Matrix operator+(const Matrix& M, const double scalar)
 {
@@ -295,4 +281,17 @@ inline Matrix operator/(const Matrix& M, const double scalar)
 inline Matrix operator+(double scalar, const Matrix& M) { return M + scalar; }
 inline Matrix operator-(double scalar, const Matrix& M) { return (-M) + scalar; }
 inline Matrix operator*(double scalar, const Matrix& M) { return M * scalar; }
+
+// Matrix44 & vec4 operators
+inline vec4 operator*(const Matrix44& mat, const vec4& v) 
+{
+    vec4 result;
+
+    for (int i = 0; i < 4; ++i) 
+    {
+        result[i] = mat[i][0] * v.x + mat[i][1] * v.y + mat[i][2] * v.z + mat[i][3] * v.w;
+    }
+
+    return result;
+}
 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // Headers
-#include "vec3.hpp"
+#include "vec.hpp"
 
 class ONB  // Orthonormal Basis (ONB)
 { 

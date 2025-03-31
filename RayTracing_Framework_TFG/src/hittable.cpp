@@ -1,7 +1,8 @@
-// Headers
+﻿// Headers
 #include "core.hpp"
 #include "hittable.hpp"
 #include "utilities.hpp"
+#include "quaternion.hpp"
 
 void hit_record::determine_normal_direction(const vec3& ray_direction, const vec3& outward_normal)
 {
@@ -25,14 +26,9 @@ quad_hit_record::quad_hit_record()
     type = QUAD;
 }
 
-const PRIMITIVE Hittable::get_type() const 
+Hittable::Hittable()
 {
-    return type; 
-}
 
-const bool Hittable::has_pdf() const 
-{ 
-    return pdf; 
 }
 
 double Hittable::pdf_value(const point3& hit_point, const vec3& scattering_direction) const
@@ -43,4 +39,48 @@ double Hittable::pdf_value(const point3& hit_point, const vec3& scattering_direc
 vec3 Hittable::random_scattering_ray(const point3& hit_point) const
 {
     return vec3(1, 0, 0);
+}
+
+const PRIMITIVE Hittable::get_type() const
+{
+    return type;
+}
+
+const bool Hittable::has_pdf() const
+{
+    return pdf;
+}
+
+void Hittable::translate(const vec3& translation)
+{
+    _transform->set_translation(translation);
+    _transform->cache_model();
+    apply_transform = true;
+}
+
+void Hittable::rotate(const vec3& axis, const double angle)
+{
+    Quaternion rotation_quaterion = Quaternion(axis, angle);
+    _transform->set_rotation(rotation_quaterion);
+    _transform->cache_model();
+    apply_transform = true;
+}
+
+void Hittable::scale(const vec3& scaling)
+{
+    _transform->set_scaling(scaling);
+    _transform->cache_model();
+    apply_transform = true;
+}
+
+void Hittable::transform(const Transform& transform)
+{
+    this->_transform = make_shared<Transform>(transform);
+    this->_transform->cache_model();
+    apply_transform = true;
+}
+
+shared_ptr<Transform> Hittable::get_transform()
+{
+    return _transform;
 }

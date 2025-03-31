@@ -122,5 +122,18 @@ string trim(const string& str)
     return (start < end) ? string(start, end) : string();
 }
 
+string trim_trailing_zeros(const double number, const bool remove_point) 
+{
+    string str_number = std::to_string(number);
+
+    while (!str_number.empty() && str_number.back() == '0')
+        str_number.pop_back();
+
+    if (remove_point && str_number.back() == '.')
+        str_number.pop_back();
+
+    return str_number;
+}
+
 
 

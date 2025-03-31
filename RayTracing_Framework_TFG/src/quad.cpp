@@ -5,7 +5,7 @@
 #include "aabb.hpp"
 #include "ray.hpp"
 
-Quad::Quad(const point3& Q, const vec3& u, const vec3& v, shared_ptr<Material> material, bool pdf) : Q(Q), u(u), v(v), material(material)
+Quad::Quad(const point3& Q, const vec3& u, const vec3& v, const shared_ptr<Material>& material, bool pdf) : Q(Q), u(u), v(v), material(material)
 {
     type = QUAD;
     this->pdf = pdf;

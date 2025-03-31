@@ -2,7 +2,9 @@
 
 // Headers
 #include "core.hpp"
-#include "vec3.hpp"
+#include "vec.hpp"
+#include "transform.hpp"
+#include "matrix.hpp"
 
 // Forward declarations
 class Material;
@@ -65,18 +67,28 @@ public:
 class Hittable
 {
 public:
+    Hittable();
     virtual ~Hittable() = default;
 
     virtual bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const = 0;
     virtual shared_ptr<AABB> bounding_box() const = 0;
-    const PRIMITIVE get_type() const;
-    const bool has_pdf() const;
     virtual double pdf_value(const point3& hit_point, const vec3& scattering_direction) const;
     virtual vec3 random_scattering_ray(const point3& hit_point) const;
+    const PRIMITIVE get_type() const;
+    const bool has_pdf() const;
+    
+    virtual void translate(const vec3& translation);
+    virtual void rotate(const vec3& axis, const double angle);
+    virtual void scale(const vec3& scale);
+    virtual void transform(const Transform& transform);
+    shared_ptr<Transform> get_transform();
 
 protected:
     PRIMITIVE type = NOT_SPECIFIED;
     bool pdf = false;
+
+    bool apply_transform = false;
+    shared_ptr<Transform> _transform = make_shared<Transform>();;
 };
 
 
