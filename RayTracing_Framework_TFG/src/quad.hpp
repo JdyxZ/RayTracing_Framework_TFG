@@ -1,11 +1,15 @@
 ﻿#pragma once
 
+// Headers
 #include "hittable.hpp"
+
+// Forward declarations
+class Matrix44;
 
 class Quad : public Hittable 
 {
 public:
-    Quad(const point3& Q, const vec3& u, const vec3& v, const shared_ptr<Material>& material, bool pdf = false);
+    Quad(point3 Q, vec3 u, vec3 v, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model = nullptr, bool pdf = false);
 
     void set_bounding_box();
     shared_ptr<AABB> bounding_box() const override;

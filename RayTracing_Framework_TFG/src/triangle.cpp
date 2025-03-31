@@ -5,10 +5,28 @@
 #include "ray.hpp"
 #include "interval.hpp"
 #include "aabb.hpp"
+#include "matrix.hpp"
 
-Triangle::Triangle(vertex A, vertex B, vertex C, shared_ptr<Material> material)
+Triangle::Triangle(vertex A, vertex B, vertex C, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model)
     : A(A), B(B), C(C), material(material)
 {
+    if (model)
+    {
+        this->model = model;
+        this->A.position = *model * vec4(A.position, 1.0);
+        this->B.position = *model * vec4(A.position, 1.0);
+        this->C.position = *model * vec4(A.position, 1.0);
+
+        if (A.normal.has_value())
+            this->A.normal = *model * vec4(A.normal.value(), 0.0);
+
+        if (B.normal.has_value())
+            this->B.normal = *model * vec4(B.normal.value(), 0.0);
+
+        if (C.normal.has_value())
+            this->C.normal = *model * vec4(C.normal.value(), 0.0);
+    }
+
     type = TRIANGLE;
 
     AB = B.position - A.position;

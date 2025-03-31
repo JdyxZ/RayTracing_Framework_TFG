@@ -3,7 +3,6 @@
 // Headers
 #include "core.hpp"
 #include "vec.hpp"
-#include "logger.hpp"
 
 class Matrix
 {
@@ -68,8 +67,6 @@ public:
         double m20, double m21, double m22, double m23,
         double m30, double m31, double m32, double m33
     );
-
-    static Matrix44 identity();
 };
 
 class Matrix33 : public Matrix
@@ -83,8 +80,6 @@ public:
         double m10, double m11, double m12,
         double m20, double m21, double m22
     );
-
-    static Matrix33 identity();
 };
 
 class Matrix22 : public Matrix
@@ -97,8 +92,6 @@ public:
         double m00, double m01,
         double m10, double m11
     );
-
-    static Matrix22 identity();
 };
 
 // ************ Non-member operator overloads ************ //

@@ -4,11 +4,14 @@
 #include "hittable.hpp"
 #include "ray.hpp"
 
+// Forward declarations
+class Matrix44;
+
 class Sphere : public Hittable
 {
 public:
-    Sphere(const point3& static_center, const double radius, shared_ptr<Material> material, bool pdf = false); // Stationary sphere
-    Sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<Material> material); // Moving sphere
+    Sphere(point3 static_center, const double radius, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model = nullptr, bool pdf = false); // Stationary sphere
+    Sphere(point3 start_center, point3 end_center, const double radius, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model = nullptr); // Moving sphere
 
     bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
     shared_ptr<AABB> bounding_box() const override;

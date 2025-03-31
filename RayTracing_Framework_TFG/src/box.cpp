@@ -9,13 +9,21 @@
 #include "quaternion.hpp"
 #include "matrix.hpp"
 
-Box::Box(point3 p0, point3 p1, const shared_ptr<Material>& material) : material (material)
+Box::Box(point3 p0, point3 p1, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model) : material (material)
 {
 	// Validate that p0 and p1 are not aligned in any coordinate (this would define a line or a point instead of a box)
 	if (p0.x == p1.x || p0.y == p1.y || p0.z == p1.z)
 	{
 		string error = Logger::error("BOX", "Points p0 and p1 are aligned in at least one coordinate. A box cannot be formed.");
 		throw std::invalid_argument(error);
+	}
+
+	// Assign model matrix
+	if (model)
+	{
+		this->model = model;
+		p0 = *model * vec4(p0, 1.0);
+		p1 = *model * vec4(p1, 1.0);
 	}
 
 	// Define Box 
@@ -71,38 +79,4 @@ shared_ptr<AABB> Box::bounding_box() const
 const shared_ptr<Chrono> Box::bvh_chrono() const
 {
 	return box_bvh_chrono;
-}
-
-void Box::translate(const vec3& translation) 
-{
-	Hittable::translate(translation);
-	*this = transform_box();
-}
-
-void Box::rotate(const vec3& axis, const double angle)
-{
-	Hittable::rotate(axis, angle);
-	*this = transform_box();
-}
-
-void Box::scale(const vec3& scale)
-{
-	Hittable::translate(scale);
-	*this = transform_box();
-}
-
-void Box::transform(const Transform& transform)
-{
-	Hittable::transform(transform);
-	*this = transform_box();
-}
-
-Box Box::transform_box()
-{
-	Matrix44 model = *_transform->get_model();
-
-	p0 = model * vec4(p0, 1.0);
-	p1 = model * vec4(p1, 1.0);
-
-	return Box(p0, p1, material);
 }

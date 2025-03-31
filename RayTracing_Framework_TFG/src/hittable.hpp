@@ -3,7 +3,6 @@
 // Headers
 #include "core.hpp"
 #include "vec.hpp"
-#include "transform.hpp"
 #include "matrix.hpp"
 
 // Forward declarations
@@ -76,19 +75,11 @@ public:
     virtual vec3 random_scattering_ray(const point3& hit_point) const;
     const PRIMITIVE get_type() const;
     const bool has_pdf() const;
-    
-    virtual void translate(const vec3& translation);
-    virtual void rotate(const vec3& axis, const double angle);
-    virtual void scale(const vec3& scale);
-    virtual void transform(const Transform& transform);
-    shared_ptr<Transform> get_transform();
 
 protected:
     PRIMITIVE type = NOT_SPECIFIED;
+    shared_ptr<Matrix44> model = make_shared<Matrix44>(Matrix::identity(4));
     bool pdf = false;
-
-    bool apply_transform = false;
-    shared_ptr<Transform> _transform = make_shared<Transform>();;
 };
 
 

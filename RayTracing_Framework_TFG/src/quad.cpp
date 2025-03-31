@@ -4,9 +4,18 @@
 #include "utilities.hpp"
 #include "aabb.hpp"
 #include "ray.hpp"
+#include "matrix.hpp"
 
-Quad::Quad(const point3& Q, const vec3& u, const vec3& v, const shared_ptr<Material>& material, bool pdf) : Q(Q), u(u), v(v), material(material)
+Quad::Quad(point3 Q, vec3 u, vec3 v, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model, bool pdf) : Q(Q), u(u), v(v), material(material)
 {
+    if (model)
+    {
+        this->model = model;
+        this->Q = *model * vec4(Q, 1.0);
+        this->u = *model * vec4(u, 0.0);
+        this->v = *model * vec4(v, 0.0);
+    }
+
     type = QUAD;
     this->pdf = pdf;
 

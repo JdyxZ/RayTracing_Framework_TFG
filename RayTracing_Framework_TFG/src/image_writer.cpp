@@ -18,9 +18,6 @@ ImageWriter::ImageWriter()
 
 void ImageWriter::initialize()
 {
-    // Get current date and time
-    name = get_current_timestamp();
-
     // Set image extension
     switch (format)
     {
@@ -34,12 +31,6 @@ void ImageWriter::initialize()
         format_str = ".error";
         break;
     }
-
-    // Set formatted image name 
-    fmt_name = name + format_str;
-
-    // Set path for image saving
-    image_path = output_path + "\\" + name + format_str;
 
     // Construct the file name and path
     string folderPath = output_directory + "\\";
@@ -70,6 +61,15 @@ void ImageWriter::write_pixel(int pixel_position, tuple<int, int, int> RGB_color
 
 void ImageWriter::save()
 {
+    // Get current date and time
+    name = get_current_timestamp();
+
+    // Set formatted image name 
+    fmt_name = name + format_str;
+
+    // Set path for image saving
+    image_path = output_path + "\\" + name + format_str;
+
     Logger::info("ImageWriter", "Encoding to image started.");
 
     bool success = false;

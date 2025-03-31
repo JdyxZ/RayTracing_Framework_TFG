@@ -51,11 +51,6 @@ Matrix44::Matrix44
     (*this)[3][0] = m30; (*this)[3][1] = m31; (*this)[3][2] = m32; (*this)[3][3] = m33;
 }
 
-Matrix44 Matrix44::identity()
-{
-    return Matrix::identity(4);
-}
-
 Matrix33::Matrix33(double initial) : Matrix(3, 3, initial) {}
 
 Matrix33::Matrix33(const Matrix& matrix) : Matrix(matrix)
@@ -83,11 +78,6 @@ Matrix33::Matrix33
     (*this)[2][0] = m20; (*this)[2][1] = m21; (*this)[2][2] = m22;
 }
 
-Matrix33 Matrix33::identity()
-{
-    return Matrix::identity(3);
-}
-
 Matrix22::Matrix22(double initial) : Matrix(2, 2, initial) {}
 
 Matrix22::Matrix22(const Matrix& matrix) : Matrix(matrix)
@@ -111,11 +101,6 @@ Matrix22::Matrix22
 {
     (*this)[0][0] = m00; (*this)[0][1] = m01;
     (*this)[1][0] = m10; (*this)[1][1] = m11;
-}
-
-Matrix22 Matrix22::identity()
-{
-    return Matrix::identity(2);
 }
 
 // Matrix operations

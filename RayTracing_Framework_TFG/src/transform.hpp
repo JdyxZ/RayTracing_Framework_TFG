@@ -1,10 +1,11 @@
 ﻿// Headers
 #include "core.hpp"
+#include "vec.hpp"
+#include "matrix.hpp"
+#include "framework.hpp"
 
 // Forward declarations
-class vec3;
 struct Quaternion;
-class Matrix44;
 
 struct Transform
 {
@@ -23,6 +24,8 @@ public:
 
 	void cache_model();
 	shared_ptr<Matrix44> get_model();
+
+	 static const shared_ptr<Matrix44> transform_matrix(const vec3& translation = vec3(0), vec3 axis = x_axis, const double& angle = 0, const vec3& scailing = vec3(1));
 
 private:
 	bool recompute = false;

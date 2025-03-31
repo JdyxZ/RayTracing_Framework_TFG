@@ -3,7 +3,6 @@
 #include "transform.hpp"
 #include "vec.hpp"
 #include "quaternion.hpp"
-#include "framework.hpp"
 #include "matrix.hpp"
 
 Transform::Transform()
@@ -11,7 +10,7 @@ Transform::Transform()
 	translation = make_shared<vec3>(0.0);
 	rotation = make_shared<Quaternion>();
 	scaling = make_shared<vec3>(1.0);
-	recompute = false;
+	recompute = true;
 	model = nullptr;
 }
 
@@ -20,7 +19,7 @@ Transform::Transform(const vec3& translation, const Quaternion& rotation, const 
 	this->translation = make_shared<vec3>(translation);
 	this->rotation = make_shared<Quaternion>(rotation);
 	this->scaling = make_shared<vec3>(scailing);
-	recompute = false;
+	recompute = true;
 	model = nullptr;
 
 	this->cache_model();
@@ -116,4 +115,15 @@ shared_ptr<Matrix44> Transform::compute_model()
 	);
 }
 
-// Useful resource: https://community.khronos.org/t/4x4-matrix-in-glm/106905
+const shared_ptr<Matrix44> Transform::transform_matrix(const vec3& translation, vec3 axis, const double& angle, const vec3& scailing)
+{
+	auto radians = degrees_to_radians(angle);
+	axis.normalize();
+
+	Quaternion rotation = Quaternion(axis, angle);
+	Transform transform = Transform(translation, rotation, scailing);
+	
+	auto model = transform.get_model();
+
+	return model;
+}

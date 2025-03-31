@@ -4,9 +4,16 @@
 #include "aabb.hpp"
 #include "utilities.hpp"
 #include "onb.hpp"
+#include "matrix.hpp"
 
-Sphere::Sphere(const point3& static_center, const double radius, shared_ptr<Material> material, bool pdf) : radius(std::fmax(0, radius)), material(material)
+Sphere::Sphere(point3 static_center, const double radius, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model, bool pdf) : radius(std::fmax(0, radius)), material(material)
 {
+    if (model)
+    {
+        this->model = model;
+        static_center = *model * vec4(static_center, 1.0);
+    }
+
     type = SPHERE;
     pdf = pdf;
 
@@ -19,8 +26,15 @@ Sphere::Sphere(const point3& static_center, const double radius, shared_ptr<Mate
     bbox = make_shared<AABB>(static_center - radius_vector, static_center + radius_vector);
 }
 
-Sphere::Sphere(const point3& start_center, const point3& end_center, const double radius, shared_ptr<Material> material) : radius(std::fmax(0, radius)), material(material)
+Sphere::Sphere(point3 start_center, point3 end_center, const double radius, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model) : radius(std::fmax(0, radius)), material(material)
 {
+    if (model)
+    {
+        this->model = model;
+        start_center = *model * vec4(start_center, 1.0);
+        end_center = *model * vec4(end_center, 1.0);
+    }
+
     vec3 origin = start_center;
     vec3 direction = end_center - start_center;
 

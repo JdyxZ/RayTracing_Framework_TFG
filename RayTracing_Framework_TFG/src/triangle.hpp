@@ -1,7 +1,12 @@
 ﻿#pragma once
 
+// Headers
 #include "hittable.hpp"
 
+// Forward declarations
+class Matrix44;
+
+// Macros
 constexpr bool CULLING = false;
 
 struct vertex 
@@ -19,7 +24,7 @@ class Triangle : public Hittable
 public:
     vertex A, B, C;
 
-    Triangle(vertex A, vertex B, vertex C, shared_ptr<Material> material);
+    Triangle(vertex A, vertex B, vertex C, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model = nullptr);
 
     bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
     bool has_vertex_colors() const;

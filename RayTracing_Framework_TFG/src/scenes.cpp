@@ -21,6 +21,7 @@
 #include "obj_loader.hpp"
 #include "constant_medium.hpp"
 #include "chrono.hpp"
+#include "transform.hpp"
 
 void scenes::book1_final_scene_creation(Scene& scene, bool blur_motion)
 {
@@ -322,21 +323,20 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     // Quads
     auto quad1 = make_shared<Quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green);
     auto quad2 = make_shared<Quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red);
-    auto quad3 = make_shared<Quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light, true);
+    auto quad3 = make_shared<Quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light, nullptr, true);
     auto quad4 = make_shared<Quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white);
     auto quad5 = make_shared<Quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white);
     auto quad6 = make_shared<Quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white);
 
+    // Model matrix
+    auto box1_model = Transform::transform_matrix(vec3(265, 0, 295), y_axis, 15.0);
+    auto box2_model = Transform::transform_matrix(vec3(130, 0, 65), y_axis, -18.0);
+
     // Boxes
-    shared_ptr<Box> box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white);
-    shared_ptr<Box> box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white);
+    auto box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white, box1_model);
+    auto box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white, box2_model);
 
     // Transformations
-    box1->rotate(y_axis, degrees_to_radians(15.0));
-    box1->translate(vec3(265, 0, 295));
-    box2->rotate(y_axis, degrees_to_radians(-18.0));
-    box2->translate(vec3(130, 0, 65));
-
     /*
     box1 = make_shared<rotate>(box1, y_axis, -15.0);
     box1 = make_shared<translate>(box1, vec3(265, 0, 295));
@@ -345,7 +345,7 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     */
 
     // Glass Sphere
-    auto sphere1 = make_shared<Sphere>(point3(190, 90, 190), 90, glass, true);
+    auto sphere1 = make_shared<Sphere>(point3(190, 90, 190), 90, glass, nullptr, true);
 
     // Mesh
     auto mesh = load_obj("cube\\cube.obj");
@@ -358,8 +358,8 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad5);
     scene.add(quad6);
     scene.add(box1);
-    // scene.add(box2);
-    scene.add(sphere1);
+    scene.add(box2);
+    // scene.add(sphere1);
     if (mesh) scene.add(mesh);
 }
 
