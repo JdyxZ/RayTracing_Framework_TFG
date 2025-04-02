@@ -2,7 +2,7 @@
 
 // Headers
 #include "hittable_list.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
 #include "color.hpp"
 
 // Forward declarations

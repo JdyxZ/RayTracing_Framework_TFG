@@ -2,7 +2,7 @@
 #include "core.hpp" 
 #include "pdf.hpp"
 #include "utilities.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
 #include "onb.hpp"
 #include "hittable.hpp"
 

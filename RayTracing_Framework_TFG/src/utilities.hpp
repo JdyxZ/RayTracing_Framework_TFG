@@ -2,7 +2,8 @@
 
 // Headers
 #include "core.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
+#include "vec4.hpp"
 
 // ************** TIMESTAMP UTILITIES ************** //
 
@@ -59,19 +60,30 @@ inline int random_int(int min, int max) // Returns a random integer in [min,max]
 
 inline double dot(const vec3& u, const vec3& v)
 {
-    return u[0] * v[0]
-        + u[1] * v[1]
-        + u[2] * v[2];
+    return u.x * v.x + u.y * v.y + u.z * v.z;
+}
+
+inline double dot(const vec4& u, const vec4& v)
+{
+    return u.x * v.x + u.y * v.y + u.z * v.z + u.w * u.z;
 }
 
 inline vec3 cross(const vec3& u, const vec3& v)
 {
-    return vec3(u[1] * v[2] - u[2] * v[1],
-        u[2] * v[0] - u[0] * v[2],
-        u[0] * v[1] - u[1] * v[0]);
+    return vec3
+    (
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x
+    );
 }
 
 inline vec3 unit_vector(const vec3& v)
+{
+    return v / v.length();
+}
+
+inline vec4 unit_vector(const vec4& v)
 {
     return v / v.length();
 }
@@ -91,6 +103,16 @@ inline vec3 refract(const vec3& incoming_ray, const vec3& n, double cos_theta, d
 inline vec3 lerp(double a, vec3 start, vec3 end)
 {
     return (1.0 - a) * start + a * end;
+}
+
+inline vec3 min_vector(const vec3& v1, const vec3& v2)
+{
+    return vec3(std::fmin(v1.x, v2.x), std::fmin(v1.y, v2.y), std::fmin(v1.z, v2.z));
+}
+
+inline vec3 max_vector(const vec3& v1, const vec3& v2)
+{
+    return vec3(std::fmax(v1.x, v2.x), std::fmax(v1.y, v2.y), std::fmax(v1.z, v2.z));
 }
 
 // ************** SAMPLE UTILITIES ************** //

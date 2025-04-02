@@ -2,7 +2,7 @@
 
 // Headers
 #include "hittable.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
 
 // Forward declaration
 class Material;
@@ -10,7 +10,6 @@ class Ray;
 class Interval;
 class bvh_node;
 struct Chrono;
-class Matrix44;
 
 class Box : public Hittable
 {

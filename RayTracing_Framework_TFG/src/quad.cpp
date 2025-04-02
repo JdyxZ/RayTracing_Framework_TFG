@@ -8,15 +8,8 @@
 
 Quad::Quad(point3 Q, vec3 u, vec3 v, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model, bool pdf) : Q(Q), u(u), v(v), material(material)
 {
-    if (model)
-    {
-        this->model = model;
-        this->Q = *model * vec4(Q, 1.0);
-        this->u = *model * vec4(u, 0.0);
-        this->v = *model * vec4(v, 0.0);
-    }
-
     type = QUAD;
+    this->model = model ? model : Hittable::model;
     this->pdf = pdf;
 
     auto n = cross(u, v);

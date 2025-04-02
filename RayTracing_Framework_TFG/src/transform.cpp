@@ -1,7 +1,7 @@
 ﻿// Headers
 #include "core.hpp"
 #include "transform.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
 #include "quaternion.hpp"
 #include "matrix.hpp"
 
@@ -120,7 +120,7 @@ const shared_ptr<Matrix44> Transform::transform_matrix(const vec3& translation, 
 	auto radians = degrees_to_radians(angle);
 	axis.normalize();
 
-	Quaternion rotation = Quaternion(axis, angle);
+	Quaternion rotation = Quaternion(axis, radians);
 	Transform transform = Transform(translation, rotation, scailing);
 	
 	auto model = transform.get_model();

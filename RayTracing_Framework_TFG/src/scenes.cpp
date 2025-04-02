@@ -14,7 +14,7 @@
 #include "bvh.hpp"
 #include "mesh.hpp"
 #include "perlin.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
 #include "color.hpp"
 #include "utilities.hpp"
 #include "hittable_transform.hpp"
@@ -298,7 +298,7 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
 {
     // Image settings
     image.aspect_ratio = 1.0;
-    image.width = 500;
+    image.width = 150;
 
     // Camera settings
     camera.vertical_fov = 40;
@@ -309,8 +309,8 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.name = "Cornell Box";
     scene.sky_blend = false;
     scene.background = BLACK;
-    scene.bounce_max_depth = 50;
-    scene.samples_per_pixel = 100;
+    scene.bounce_max_depth = 10;
+    scene.samples_per_pixel = 50;
 
     // Materials
     auto red = make_shared<Lambertian>(color(.65, .05, .05));
@@ -333,10 +333,12 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     auto box2_model = Transform::transform_matrix(vec3(130, 0, 65), y_axis, -18.0);
 
     // Boxes
-    auto box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white, box1_model);
-    auto box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white, box2_model);
+    shared_ptr<Hittable> box1 = make_shared<Box>(point3(0, 0, 0), point3(165, 330, 165), white, box1_model);
+    shared_ptr<Hittable> box2 = make_shared<Box>(point3(0, 0, 0), point3(165, 165, 165), white, box2_model);
 
     // Transformations
+    box1 = make_shared<transform>(box1, box1_model);
+    box2 = make_shared<transform>(box2, box2_model);
     /*
     box1 = make_shared<rotate>(box1, y_axis, -15.0);
     box1 = make_shared<translate>(box1, vec3(265, 0, 295));
@@ -357,9 +359,9 @@ void scenes::cornell_box(Scene& scene, Camera& camera, ImageWriter& image)
     scene.add(quad4);
     scene.add(quad5);
     scene.add(quad6);
-    scene.add(box1);
-    scene.add(box2);
-    // scene.add(sphere1);
+    // scene.add(box1);
+    // scene.add(box2);
+    scene.add(sphere1);
     if (mesh) scene.add(mesh);
 }
 

@@ -7,7 +7,7 @@
 #include "utilities.hpp"
 #include "quaternion.hpp"
 
-translate::translate(shared_ptr<Hittable> object, const vec3& offset) : object(object), offset(offset)
+translate::translate(const shared_ptr<Hittable>& object, const vec3& offset) : object(object), offset(offset)
 {
     bbox = compute_translated_bbox();
 }
@@ -37,7 +37,7 @@ shared_ptr<AABB> translate::compute_translated_bbox()
     return make_shared<AABB>(*object->bounding_box() + offset);
 }
 
-rotate::rotate(shared_ptr<Hittable> object, vec3 axis, double angle) : object(object)
+rotate::rotate(const shared_ptr<Hittable>& object, vec3 axis, double angle) : object(object)
 {
     // Transform degress to radians
     auto radians = degrees_to_radians(angle);
@@ -111,7 +111,7 @@ shared_ptr<AABB> rotate::compute_rotated_bbox() const
     return make_shared<AABB>(min, max);
 }
 
-scale::scale(shared_ptr<Hittable> object, const vec3& scale_factor) : object(object), scale_factor(scale_factor), inverse_scale(1.0 / scale_factor)
+scale::scale(const shared_ptr<Hittable>& object, const vec3& scale_factor) : object(object), scale_factor(scale_factor), inverse_scale(1.0 / scale_factor)
 {
     bbox = compute_scaled_bbox();
 }
@@ -127,10 +127,8 @@ bool scale::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>
     if (!object->hit(scaled_ray, ray_t, rec))
         return false;
 
-    // Transform intersection point back to world space
+    // Transform the intersection point and normal back to world space
     rec->p *= scale_factor;
-
-    // Correct the normal using inverse transpose scaling
     rec->normal = (rec->normal * scale_factor).normalize();
 
     return true;
@@ -146,3 +144,64 @@ shared_ptr<AABB> scale::compute_scaled_bbox() const
     return make_shared<AABB>(*object->bounding_box() * scale_factor);
 }
 
+transform::transform(const shared_ptr<Hittable>& object, const shared_ptr<Matrix44> model) : object(object)
+{
+    this->model = model;
+    this->inverse_model = make_shared<Matrix44>(model->inverse());
+    this->bbox = compute_transformed_bbox();
+}
+
+bool transform::hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const
+{
+    // Scale the ray into object space
+    vec3 scaled_origin = *inverse_model * vec4(r->origin(), 1.0);
+    vec3 scaled_direction = *inverse_model *  vec4(r->direction(), 0.0);
+    auto scaled_ray = make_shared<Ray>(scaled_origin, scaled_direction, r->time());
+
+    // Check if the scaled ray hits the object
+    if (!object->hit(scaled_ray, ray_t, rec))
+        return false;
+
+    // Transform the intersection point and normal back to world space
+    rec->p = *model * vec4(rec->p, 1.0);
+    rec->normal = (*model * vec4(rec->normal, 0.0)).normalize();
+
+    return true;
+}
+
+shared_ptr<AABB> transform::bounding_box() const
+{
+    return bbox;
+}
+
+shared_ptr<AABB> transform::compute_transformed_bbox() const
+{
+    // Get the original bounding box
+    shared_ptr<AABB> original_bbox = object->bounding_box();
+
+    // Iterate and rotate the 8 corner points of the AABB and find the new min and max
+    point3 min(infinity, infinity, infinity);
+    point3 max(-infinity, -infinity, -infinity);
+
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            for (int k = 0; k < 2; k++)
+            {
+                double x = i * original_bbox->x->max + (1 - i) * original_bbox->x->min;
+                double y = j * original_bbox->y->max + (1 - j) * original_bbox->y->min;
+                double z = k * original_bbox->z->max + (1 - k) * original_bbox->z->min;
+
+                // Rotate the corner point
+                vec3 rotated_corner = *model * vec4(x, y, z, 1.0);
+
+                // Update the new bounding box
+                min = min_vector(min, rotated_corner);
+                max = max_vector(max, rotated_corner);
+            }
+        }
+    }
+
+    return make_shared<AABB>(min, max);
+}

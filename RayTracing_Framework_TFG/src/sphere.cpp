@@ -8,14 +8,9 @@
 
 Sphere::Sphere(point3 static_center, const double radius, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model, bool pdf) : radius(std::fmax(0, radius)), material(material)
 {
-    if (model)
-    {
-        this->model = model;
-        static_center = *model * vec4(static_center, 1.0);
-    }
-
     type = SPHERE;
-    pdf = pdf;
+    this->model = model ? model : Hittable::model;
+    // this->pdf = pdf;
 
     vec3 origin = static_center;
     vec3 direction = vec3(0);
@@ -28,12 +23,8 @@ Sphere::Sphere(point3 static_center, const double radius, const shared_ptr<Mater
 
 Sphere::Sphere(point3 start_center, point3 end_center, const double radius, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model) : radius(std::fmax(0, radius)), material(material)
 {
-    if (model)
-    {
-        this->model = model;
-        start_center = *model * vec4(start_center, 1.0);
-        end_center = *model * vec4(end_center, 1.0);
-    }
+    type = SPHERE;
+    this->model = model ? model : Hittable::model;
 
     vec3 origin = start_center;
     vec3 direction = end_center - start_center;

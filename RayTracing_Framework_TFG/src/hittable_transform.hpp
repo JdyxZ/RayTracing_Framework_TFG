@@ -9,7 +9,7 @@ struct Quaternion;
 class translate : public Hittable 
 {
 public:
-    translate(shared_ptr<Hittable> object, const vec3& offset);
+    translate(const shared_ptr<Hittable>& object, const vec3& offset);
     bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
     shared_ptr<AABB> bounding_box() const override;
 
@@ -24,7 +24,7 @@ private:
 class rotate : public Hittable
 {
 public:
-    rotate(shared_ptr<Hittable> object, vec3 axis, double angle);
+    rotate(const shared_ptr<Hittable>& object, vec3 axis, double angle);
     bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
     shared_ptr<AABB> bounding_box() const override;
 
@@ -40,7 +40,7 @@ private:
 class scale : public Hittable
 {
 public:
-    scale(shared_ptr<Hittable> object, const vec3& scale_factor);
+    scale(const shared_ptr<Hittable>& object, const vec3& scale_factor);
     bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
     shared_ptr<AABB> bounding_box() const override;
 
@@ -51,6 +51,22 @@ private:
     shared_ptr<AABB> bbox;
 
     shared_ptr<AABB> compute_scaled_bbox() const;
+};
+
+class transform : public Hittable
+{
+public:
+    transform(const shared_ptr<Hittable>& object, const shared_ptr<Matrix44> model);
+    bool hit(const shared_ptr<Ray>& r, Interval ray_t, shared_ptr<hit_record>& rec) const override;
+    shared_ptr<AABB> bounding_box() const override;
+
+private:
+    shared_ptr<Hittable> object;
+    shared_ptr<Matrix44> model;
+    shared_ptr<Matrix44> inverse_model;
+    shared_ptr<AABB> bbox;
+
+    shared_ptr<AABB> compute_transformed_bbox() const;
 };
 
 

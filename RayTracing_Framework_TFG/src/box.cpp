@@ -6,8 +6,8 @@
 #include "bvh.hpp"
 #include "interval.hpp"
 #include "aabb.hpp"
-#include "quaternion.hpp"
 #include "matrix.hpp"
+#include "utilities.hpp"
 
 Box::Box(point3 p0, point3 p1, const shared_ptr<Material>& material, const shared_ptr<Matrix44>& model) : material (material)
 {
@@ -18,22 +18,15 @@ Box::Box(point3 p0, point3 p1, const shared_ptr<Material>& material, const share
 		throw std::invalid_argument(error);
 	}
 
-	// Assign model matrix
-	if (model)
-	{
-		this->model = model;
-		p0 = *model * vec4(p0, 1.0);
-		p1 = *model * vec4(p1, 1.0);
-	}
-
 	// Define Box 
 	type = BOX;
+	this->model = model ? model : Hittable::model;
 	this->p0 = p0;
 	this->p1 = p1;
 
 	// Construct the two opposite vertices with the minimum and maximum coordinates.
-	auto min = point3(std::fmin(p0.x, p1.x), std::fmin(p0.y, p1.y), std::fmin(p0.z, p1.z));
-	auto max = point3(std::fmax(p0.x, p1.x), std::fmax(p0.y, p1.y), std::fmax(p0.z, p1.z));
+	auto min = min_vector(p0, p1);
+	auto max = max_vector(p0, p1);
 
 	// Construct the coordinate system of the box.
 	auto dx = vec3(max.x - min.x, 0, 0);

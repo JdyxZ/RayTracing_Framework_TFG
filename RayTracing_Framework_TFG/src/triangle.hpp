@@ -3,9 +3,6 @@
 // Headers
 #include "hittable.hpp"
 
-// Forward declarations
-class Matrix44;
-
 // Macros
 constexpr bool CULLING = false;
 

@@ -2,7 +2,8 @@
 
 // Headers
 #include "core.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
+#include "vec4.hpp"
 
 class Matrix
 {

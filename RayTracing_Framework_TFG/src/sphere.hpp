@@ -4,9 +4,6 @@
 #include "hittable.hpp"
 #include "ray.hpp"
 
-// Forward declarations
-class Matrix44;
-
 class Sphere : public Hittable
 {
 public:

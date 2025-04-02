@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // Headers
-#include "vec.hpp"
+#include "vec3.hpp"
 
 class Ray 
 {

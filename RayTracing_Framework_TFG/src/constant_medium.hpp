@@ -3,7 +3,7 @@
 // Headers
 #include "hittable.hpp"
 #include "core.hpp"
-#include "vec.hpp"
+#include "vec3.hpp"
 
 // Forward declarations
 class Ray;

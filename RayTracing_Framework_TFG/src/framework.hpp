@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 // Headers
-#include "vec.hpp"
+#include "vec3.hpp"
 
 // Axis definitions (right-handed coordinate system)
 const axis x_axis = vec3(1, 0, 0);

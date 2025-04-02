@@ -3,9 +3,6 @@
 // Headers
 #include "hittable.hpp"
 
-// Forward declarations
-class Matrix44;
-
 class Quad : public Hittable 
 {
 public:
